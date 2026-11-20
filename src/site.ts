@@ -42,7 +42,7 @@ export type Slot = {
   title: string;
   body: string[];
   link?: { href: string; label: string };
-  tone: "cherry" | "lime" | "sky" | "sun";
+  tone: "orange" | "lime" | "sky" | "sun";
 };
 
 export const slots: Slot[] = [
@@ -89,7 +89,7 @@ export const slots: Slot[] = [
       "We're adding machines at Firestone stores across North Carolina, and we're open to other busy waiting rooms too.",
     ],
     link: { href: "/host/", label: "Request a machine" },
-    tone: "cherry",
+    tone: "orange",
   },
   {
     code: "B2",

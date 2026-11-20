@@ -7,7 +7,7 @@ import SlotIcon from "./SlotIcon.astro";
 import { locations, site, slots } from "../site";
 
 const tone = {
-  cherry: "bg-cherry text-frost",
+  orange: "bg-orange text-frost",
   lime: "bg-lime text-ink",
   sky: "bg-sky text-ink",
   sun: "bg-sun text-ink",
@@ -79,7 +79,7 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
         <!-- Coin slot doubles as the host call to action -->
         <a
           href="/host/"
-          class="group flex items-center justify-between gap-3 rounded-xl bg-cherry px-4 py-4 font-display text-frost shadow-[0_5px_0_var(--color-cherry-dark)] transition-transform hover:-translate-y-0.5"
+          class="group flex items-center justify-between gap-3 rounded-xl bg-orange px-4 py-4 font-display text-frost shadow-[0_5px_0_var(--color-orange-dark)] transition-transform hover:-translate-y-0.5"
         >
           <span>Host a machine</span>
           <span class="h-8 w-1.5 rounded-full bg-cabinet" aria-hidden="true"></span>
@@ -92,7 +92,7 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
     <div class="tray mt-4 p-4 sm:p-6" data-tray>
       <p class="mb-3 font-display text-xs tracking-[0.3em] text-chrome-dark">Pick up here</p>
       <p class="led-hint text-lg text-inverse" data-tray-hint hidden>
-        Press a letter, a number, then <span class="font-display text-cherry">Vend</span>. Or tap anything in the window.
+        Press a letter, a number, then <span class="font-display text-orange">Vend</span>. Or tap anything in the window.
       </p>
       <div class="flex flex-col gap-4">
         {
@@ -106,7 +106,7 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
                   <ul class="flex flex-col gap-2">
                     {locations.map((l) => (
                       <li class="flex items-baseline gap-2">
-                        <span class="font-display text-cherry">●</span>
+                        <span class="font-display text-orange">●</span>
                         <span>
                           <strong>{l.name}</strong>, {l.city}
                           {l.note && <span class="text-muted"> · {l.note}</span>}
@@ -118,7 +118,7 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
                 )}
               </div>
               {s.link && (
-                <a href={s.link.href} class="mt-5 inline-block rounded-control bg-cherry px-5 py-3 font-display text-frost shadow-[0_4px_0_var(--color-cherry-dark)]">
+                <a href={s.link.href} class="mt-5 inline-block rounded-control bg-orange px-5 py-3 font-display text-frost shadow-[0_4px_0_var(--color-orange-dark)]">
                   {s.link.label}
                 </a>
               )}

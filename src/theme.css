@@ -1,6 +1,6 @@
 /*
  * THE THEME FILE. Oogum Vending: the whole site is a refrigerated vending machine.
- * A dark cabinet, a frosted glass window, cherry buttons and a green LED readout.
+ * A dark cabinet, a frosted glass window, orange buttons and a green LED readout.
  * Components only use these tokens, never raw hex values.
  */
 @import url("https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=VT323&family=Outfit:wght@400;500;600;700;800&display=swap");
@@ -8,8 +8,8 @@
 
 @theme {
   /* Cabinet */
-  --color-cabinet: #12222e; /* machine body */
-  --color-cabinet-2: #1b3242; /* panels on the body */
+  --color-cabinet: #01204c; /* machine body */
+  --color-cabinet-2: #0d3170; /* panels on the body */
   --color-chrome: #c9d4dc; /* trim and handles */
   --color-chrome-dark: #8597a3;
 
@@ -19,17 +19,17 @@
   --color-cold: #7fd3f5; /* fridge glow */
 
   /* Page */
-  --color-floor: #0b151c; /* page background around the machine */
+  --color-floor: #00122c; /* page background around the machine */
   --color-paper: #f4f8fa; /* plain content areas, hub */
-  --color-ink: #10202b;
+  --color-ink: #01204c;
   --color-muted: #4f6573;
   --color-inverse: #f4f8fa;
   --color-line: #cfdde5;
 
   /* Brand */
-  --color-cherry: #ef3b4f; /* buttons, VEND */
-  --color-cherry-dark: #b8233a;
-  --color-lime: #a8e05f;
+  --color-orange: #f47a1f; /* buttons, VEND: Oogum orange */
+  --color-orange-dark: #c35a0c;
+  --color-lime: #8ec008; /* Oogum lime */
   --color-sky: #7fd3f5;
   --color-sun: #ffc93c;
 
@@ -162,7 +162,7 @@
     box-shadow: 0 1px 0 var(--color-cabinet-2);
   }
   .key-vend {
-    background: linear-gradient(var(--color-cherry), var(--color-cherry-dark));
+    background: linear-gradient(var(--color-orange), var(--color-orange-dark));
     color: var(--color-frost);
   }
 
