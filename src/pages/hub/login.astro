@@ -1,0 +1,63 @@
+---
+import Hub from "../../layouts/Hub.astro";
+import { SESSION_COOKIE, SESSION_DAYS, checkLogin, hubConfig, makeSession } from "../../lib/auth";
+
+export const prerender = false;
+
+const cfg = hubConfig();
+const configured = Object.keys(cfg.users).length > 0 && cfg.secret.length >= 16;
+const rawNext = Astro.url.searchParams.get("next") ?? "/hub/";
+// Only send people back inside the hub.
+const next = rawNext.startsWith("/hub") && !rawNext.startsWith("//") ? rawNext : "/hub/";
+
+let error = "";
+let username = "";
+if (Astro.request.method === "POST" && configured) {
+  const form = await Astro.request.formData();
+  username = String(form.get("username") ?? "");
+  const user = checkLogin(username, String(form.get("password") ?? ""), cfg.users);
+  if (user) {
+    Astro.cookies.set(SESSION_COOKIE, makeSession(user, cfg.secret), {
+      path: "/hub",
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      sameSite: "lax",
+      maxAge: SESSION_DAYS * 86_400,
+    });
+    return Astro.redirect(next, 303);
+  }
+  error = "That name and password don't match. Try again.";
+}
+const control = "w-full rounded-control border-2 border-line bg-frost px-4 py-3 outline-none focus:border-cabinet aria-[invalid=true]:border-danger";
+---
+
+<Hub title="Sign in">
+  <section class="mx-auto flex w-full max-w-sm flex-col gap-6 py-10">
+    <h1 class="text-3xl">Owner sign in</h1>
+    {
+      !configured ? (
+        <p class="rounded-control border-2 border-sun bg-sun/15 p-4 text-sm">
+          The hub isn't set up yet. Add <code>HUB_USERS</code> and <code>HUB_SECRET</code> in Netlify, then redeploy. The README says how.
+        </p>
+      ) : (
+        <form method="POST" class="flex flex-col gap-4" novalidate>
+          {error && (
+            <p role="alert" class="rounded-control border-2 border-danger bg-danger/5 px-4 py-3 text-sm font-semibold text-danger">
+              {error}
+            </p>
+          )}
+          <div class="flex flex-col gap-1.5">
+            <label for="username" class="text-sm font-bold">Name</label>
+            <input id="username" name="username" autocomplete="username" required value={username} autofocus={!error} aria-invalid={error ? "true" : undefined} aria-describedby="login-error" class={control} />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label for="password" class="text-sm font-bold">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required autofocus={!!error} aria-invalid={error ? "true" : undefined} aria-describedby="login-error" class={control} />
+            <p id="login-error" class="text-sm font-semibold text-danger" hidden={!error}>{error && "Check the name and password."}</p>
+          </div>
+          <button class="key key-vend py-3 text-lg">Sign in</button>
+        </form>
+      )
+    }
+  </section>
+</Hub>

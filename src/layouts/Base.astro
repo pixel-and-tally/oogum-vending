@@ -1,0 +1,62 @@
+---
+import "../theme.css";
+import { site } from "../site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title, description = site.description, noindex = false } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.hometown}`;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+  </head>
+  <body class="flex min-h-screen flex-col bg-floor text-inverse">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-sun focus:px-4 focus:py-2 focus:text-ink"
+      >Skip to content</a
+    >
+    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6" aria-label="Main">
+      <a href="/" class="font-display text-lg text-sun">Oogum</a>
+      <a href="/host/" class="rounded-control border-2 border-orange px-3 py-1.5 font-display text-sm text-frost hover:bg-orange">Host a machine</a>
+    </nav>
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+    <footer class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-10 text-sm text-chrome sm:flex-row sm:justify-between sm:px-6">
+      <div>
+        <p class="font-display text-sun">{site.name}</p>
+        <p>Owned by {site.owners}. {site.hometown}.</p>
+        {site.phone && <p><a class="underline" href={`tel:${site.phone}`}>{site.phone}</a></p>}
+        {site.email && <p><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></p>}
+      </div>
+      <div class="flex flex-col gap-1 sm:items-end">
+        <a href="/host/" class="underline">Host a machine</a>
+        <a href="/hub/" class="underline">Owner login</a>
+        <p class="text-chrome-dark">© {year} {site.name}</p>
+      </div>
+    </footer>
+  </body>
+</html>
