@@ -23,6 +23,8 @@ export const site = {
   phone: "",
   // Machine platform, e.g. "Nayax" or the cooler maker. Shown on the hub only.
   machinePlatform: "",
+  // Path under public/. Their current logo; swap the file if they pick a new one. Empty shows a text sign.
+  logo: "/oogum-logo.png",
 } as const;
 
 /** Where machines are today. Real locations only. */

@@ -20,12 +20,21 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
 <section class="mx-auto w-full max-w-6xl px-4 pt-6 pb-16 sm:px-6" aria-label="The Oogum machine">
   <div class="cabinet p-3 sm:p-5" data-machine>
     <!-- Lit sign across the top -->
-    <header class="mb-4 rounded-2xl bg-cabinet-2 px-4 py-5 text-center sm:py-7">
-      <h1 class="font-sign text-5xl tracking-wide text-sun drop-shadow-[0_0_14px_var(--color-sun)] sm:text-7xl">
-        Oogum
-      </h1>
-      <p class="mt-2 font-display text-sm tracking-[0.3em] text-cold sm:text-base">Vending · {site.hometown}</p>
-    </header>
+    {
+      site.logo ? (
+        <header class="mb-4 rounded-2xl bg-frost px-4 py-4 text-center shadow-[inset_0_0_30px_rgb(127_211_245/0.6),0_0_24px_rgb(255_255_255/0.25)] sm:py-5">
+          <h1 class="m-0">
+            <img src={site.logo} alt={site.name} width="591" height="390" class="mx-auto h-32 w-auto mix-blend-multiply sm:h-44" />
+          </h1>
+          <p class="mt-1 font-display text-xs tracking-[0.3em] text-ink sm:text-sm">{site.hometown}</p>
+        </header>
+      ) : (
+        <header class="mb-4 rounded-2xl bg-cabinet-2 px-4 py-5 text-center sm:py-7">
+          <h1 class="font-sign text-5xl tracking-wide text-sun drop-shadow-[0_0_14px_var(--color-sun)] sm:text-7xl">Oogum</h1>
+          <p class="mt-2 font-display text-sm tracking-[0.3em] text-cold sm:text-base">Vending · {site.hometown}</p>
+        </header>
+      )
+    }
 
     <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
       <!-- The fridge window -->
