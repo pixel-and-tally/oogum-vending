@@ -1,184 +1,604 @@
 ---
-// The home page IS the machine. The window shows the slots, the panel has a
-// keypad, and whatever you pick drops into the tray at the bottom.
-// Without JavaScript every slot's panel sits open in the tray and each slot
-// link jumps to it, so nothing is hidden from anyone.
-import SlotIcon from "./SlotIcon.astro";
+// The home page is a real-looking vending machine. Each slot behind the glass is
+// a section of the site. Key in a code (or tap the item), press Vend, the coil
+// turns, the item drops into the pickup bin, and its contents open.
+// Without JavaScript the items are plain links to the sections listed under the machine.
+import Product from "./Product.astro";
 import { locations, site, slots } from "../site";
-
-const tone = {
-  orange: "bg-orange text-frost",
-  lime: "bg-lime text-ink",
-  sky: "bg-sky text-ink",
-  sun: "bg-sun text-ink",
-} as const;
 
 const rows = [...new Set(slots.map((s) => s.code[0]))];
 const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
 ---
 
-<section class="mx-auto w-full max-w-6xl px-4 pt-6 pb-16 sm:px-6" aria-label="The Oogum machine">
-  <div class="cabinet p-3 sm:p-5" data-machine>
-    <!-- Lit sign across the top -->
-    {
-      site.logo ? (
-        <header class="mb-4 rounded-2xl bg-frost px-4 py-4 text-center shadow-[inset_0_0_30px_rgb(127_211_245/0.6),0_0_24px_rgb(255_255_255/0.25)] sm:py-5">
+<section class="stage" aria-label="The Oogum machine">
+  <div class="machine" data-machine>
+    <!-- Lit header panel -->
+    <header class="header">
+      {
+        site.logo ? (
           <h1 class="m-0">
-            <img src={site.logo} alt={site.name} width="591" height="390" class="mx-auto h-32 w-auto mix-blend-multiply sm:h-44" />
+            <img src={site.logo} alt={site.name} width="591" height="390" class="logo" />
           </h1>
-          <p class="mt-1 font-display text-xs tracking-[0.3em] text-ink sm:text-sm">{site.hometown}</p>
-        </header>
-      ) : (
-        <header class="mb-4 rounded-2xl bg-cabinet-2 px-4 py-5 text-center sm:py-7">
-          <h1 class="font-sign text-5xl tracking-wide text-sun drop-shadow-[0_0_14px_var(--color-sun)] sm:text-7xl">Oogum</h1>
-          <p class="mt-2 font-display text-sm tracking-[0.3em] text-cold sm:text-base">Vending · {site.hometown}</p>
-        </header>
-      )
-    }
+        ) : (
+          <h1 class="font-sign text-5xl text-sun">Oogum</h1>
+        )
+      }
+    </header>
 
-    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
-      <!-- The fridge window -->
-      <div class="glass p-3 sm:p-5">
-        <p class="sr-only">Pick a slot to read about it.</p>
-        <ul class="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3">
-          {
-            slots.map((s) => (
-              <li class="shelf flex flex-col items-center gap-2 pb-3">
-                <a
-                  href={`#slot-${s.code}`}
-                  data-slot={s.code}
-                  class="group flex w-full flex-col items-center gap-2 rounded-xl p-2 text-center transition-transform hover:-translate-y-1 focus-visible:-translate-y-1 aria-[current=true]:bg-sun/30 aria-[current=true]:ring-4 aria-[current=true]:ring-sun"
-                >
-                  <span
-                    class={`flex h-24 w-24 flex-col items-center justify-center gap-1 px-1 rounded-[1.2rem_1.2rem_0.6rem_0.6rem] border-[3px] border-ink shadow-[inset_-8px_0_0_rgb(0_0_0/0.12)] sm:h-28 sm:w-28 ${tone[s.tone]}`}
-                  >
-                    <SlotIcon code={s.code} class="h-10 w-10" />
-                    <span class="font-display text-[0.6rem] leading-tight">{s.label}</span>
-                  </span>
-                  <span class="tag px-2 py-0.5">
-                    {s.code}<span class="hidden sm:inline"> · {s.tag}</span>
-                  </span>
-                </a>
-                <span class="coil w-4/5" />
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <!-- Control panel -->
-      <div class="flex flex-col gap-4 rounded-2xl bg-cabinet-2 p-4">
-        <output class="led block min-h-[4.5rem] px-3 py-2 text-2xl leading-tight uppercase" data-display aria-live="polite">
-          Always cold. Always stocked.
-        </output>
-
-        <div class="grid grid-cols-3 gap-2" role="group" aria-label="Keypad" data-keypad hidden>
-          {rows.map((r) => <button type="button" class="key py-3 text-xl" data-key={r}>{r}</button>)}
-          {cols.map((c) => <button type="button" class="key py-3 text-xl" data-key={c}>{c}</button>)}
-          <button type="button" class="key py-3 text-sm" data-clear>Clear</button>
-          <button type="button" class="key key-vend col-span-3 py-3 text-xl" data-vend>Vend</button>
-        </div>
-
-        <!-- Card reader -->
-        <div class="flex items-center gap-3 rounded-xl border-2 border-chrome-dark p-3 text-inverse">
-          <span class="h-3 w-3 shrink-0 animate-pulse rounded-full bg-led shadow-[0_0_8px_var(--color-led)]"></span>
-          <p class="text-sm">Tap a card or phone to open the door.</p>
-        </div>
-
-        <!-- Coin slot doubles as the host call to action -->
-        <a
-          href="/host/"
-          class="group flex items-center justify-between gap-3 rounded-xl bg-orange px-4 py-4 font-display text-frost shadow-[0_5px_0_var(--color-orange-dark)] transition-transform hover:-translate-y-0.5"
-        >
-          <span>Host a machine</span>
-          <span class="h-8 w-1.5 rounded-full bg-cabinet" aria-hidden="true"></span>
-        </a>
-        <p class="text-center text-xs text-chrome">Free for your shop. We stock it, you plug it in.</p>
-      </div>
-    </div>
-
-    <!-- Pickup tray -->
-    <div class="tray mt-4 p-4 sm:p-6" data-tray>
-      <p class="mb-3 font-display text-xs tracking-[0.3em] text-chrome-dark">Pick up here</p>
-      <p class="led-hint text-lg text-inverse" data-tray-hint hidden>
-        Press a letter, a number, then <span class="font-display text-orange">Vend</span>. Or tap anything in the window.
-      </p>
-      <div class="flex flex-col gap-4">
+    <div class="body">
+      <!-- Glass door with shelves -->
+      <div class="window">
+        <div class="lightbar" aria-hidden="true"></div>
+        <p class="sr-only">Pick an item to read about it.</p>
         {
-          slots.map((s) => (
-            <article id={`slot-${s.code}`} data-panel={s.code} class="scroll-mt-6 rounded-xl bg-paper p-5 text-ink sm:p-7" tabindex="-1">
-              <p class="tag mb-3 inline-block px-2 py-0.5">{s.code}</p>
-              <h2 class="text-3xl sm:text-4xl">{s.title}</h2>
-              <div class="mt-3 flex max-w-2xl flex-col gap-3 text-lg">
-                {s.body.filter(Boolean).map((p) => <p>{p}</p>)}
-                {s.code === "B2" && (
-                  <ul class="flex flex-col gap-2">
-                    {locations.map((l) => (
-                      <li class="flex items-baseline gap-2">
-                        <span class="font-display text-orange">●</span>
-                        <span>
-                          <strong>{l.name}</strong>, {l.city}
-                          {l.note && <span class="text-muted"> · {l.note}</span>}
-                        </span>
-                      </li>
-                    ))}
-                    <li class="text-muted">More North Carolina Firestones coming.</li>
-                  </ul>
-                )}
-              </div>
-              {s.link && (
-                <a href={s.link.href} class="mt-5 inline-block rounded-control bg-orange px-5 py-3 font-display text-frost shadow-[0_4px_0_var(--color-orange-dark)]">
-                  {s.link.label}
-                </a>
-              )}
-            </article>
+          rows.map((r) => (
+            <div class="shelf">
+              {slots
+                .filter((s) => s.code[0] === r)
+                .map((s) => (
+                  <a href={`#slot-${s.code}`} class="slot" data-slot={s.code} aria-label={`${s.code}: ${s.label}`}>
+                    <span class="facings">
+                      <span class="item" data-item>
+                        <Product kind={s.product} tone={s.tone} label={s.brand} class="h-full w-full" />
+                      </span>
+                      <span class="item">
+                        <Product kind={s.product} tone={s.tone} label={s.brand} class="h-full w-full" />
+                      </span>
+                    </span>
+                    <span class="coils" aria-hidden="true">
+                      <span class="coil" data-coil />
+                      <span class="coil" />
+                    </span>
+                    <span class="pricetag">
+                      <b>{s.code}</b> {s.tag}
+                    </span>
+                  </a>
+                ))}
+            </div>
           ))
         }
+        <div class="glare" aria-hidden="true"></div>
+      </div>
+
+      <!-- Pickup bin -->
+      <button type="button" class="bin" data-bin aria-label="Pickup bin" disabled>
+        <span class="flap"><span data-bin-label>Push</span></span>
+      </button>
+
+      <!-- Control panel -->
+      <div class="panel">
+        <output class="led" data-display aria-live="polite">Make a selection</output>
+        <div class="keypad" role="group" aria-label="Keypad" data-keypad hidden>
+          {rows.map((r) => <button type="button" class="key" data-key={r}>{r}</button>)}
+          {cols.map((c) => <button type="button" class="key" data-key={c}>{c}</button>)}
+          <button type="button" class="key key-small" data-clear>Clear</button>
+          <button type="button" class="key key-vend" data-vend>Vend</button>
+        </div>
+        <div class="reader" aria-hidden="true">
+          <svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M8 8a6 6 0 0 1 0 8M12 5a10 10 0 0 1 0 14M4 10.5a2.5 2.5 0 0 1 0 3" />
+          </svg>
+          <span>Tap card<br />or phone</span>
+        </div>
+        <div class="slots-hw" aria-hidden="true">
+          <span class="bill"></span>
+          <span class="coin"></span>
+        </div>
+        <a href="/host/" class="sticker-host">
+          <span>Want me at your shop?</span>
+          <b>Host a machine</b>
+        </a>
+        <span class="coin-return" aria-hidden="true"></span>
       </div>
     </div>
+
+    <div class="kick" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   </div>
+  <div class="floor" aria-hidden="true"></div>
+
+  <!-- The contents of every slot. Without JavaScript this is the page. -->
+  <div class="contents" data-contents>
+    <h2 class="sr-only">What's in the machine</h2>
+    {
+      slots.map((s) => (
+        <article id={`slot-${s.code}`} data-panel={s.code} class="card">
+          <p class="tag mb-3 inline-block px-2 py-0.5">{s.code}</p>
+          <h2 class="text-3xl sm:text-4xl">{s.title}</h2>
+          <div class="mt-3 flex max-w-2xl flex-col gap-3 text-lg">
+            {s.body.filter(Boolean).map((p) => <p>{p}</p>)}
+            {s.code === "C1" && (
+              <ul class="flex flex-col gap-2">
+                {locations.map((l) => (
+                  <li>
+                    <strong>{l.name}</strong>, {l.city}
+                    {l.note && <span class="text-muted"> · {l.note}</span>}
+                  </li>
+                ))}
+                <li class="text-muted">More North Carolina Firestones coming.</li>
+              </ul>
+            )}
+          </div>
+          {s.link && (
+            <a href={s.link.href} class="mt-5 inline-block rounded-control bg-orange px-5 py-3 font-display text-frost shadow-[0_4px_0_var(--color-orange-dark)]">
+              {s.link.label}
+            </a>
+          )}
+        </article>
+      ))
+    }
+  </div>
+
+  <dialog class="unwrap" data-dialog aria-label="Your item">
+    <div data-dialog-body></div>
+    <form method="dialog" class="mt-6">
+      <button class="key key-vend px-6 py-3">Back to the machine</button>
+    </form>
+  </dialog>
 </section>
+
+<style>
+  .stage {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 1rem 1rem 4rem;
+  }
+
+  /* ---- Cabinet ---- */
+  .machine {
+    position: relative;
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 1rem;
+    border-radius: 1.6rem 1.6rem 0.6rem 0.6rem;
+    background:
+      linear-gradient(90deg, rgb(255 255 255 / 0.08), transparent 6%, transparent 94%, rgb(0 0 0 / 0.35)),
+      var(--color-cabinet);
+    border: 5px solid var(--color-chrome-dark);
+    box-shadow:
+      inset 0 0 0 3px var(--color-cabinet-2),
+      14px 0 0 -2px var(--color-cabinet-2),
+      0 40px 70px -30px rgb(0 0 0 / 0.9);
+  }
+  .header {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem;
+    margin-bottom: 0.9rem;
+    border-radius: 1rem;
+    background: radial-gradient(120% 140% at 50% 0%, var(--color-frost), var(--color-glass));
+    box-shadow: 0 0 30px rgb(255 255 255 / 0.25), inset 0 -6px 0 rgb(0 0 0 / 0.08);
+  }
+  .logo {
+    height: clamp(5.5rem, 16vw, 9rem);
+    width: auto;
+    mix-blend-mode: multiply;
+  }
+  .body {
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: minmax(0, 1fr) 11.5rem;
+    grid-template-areas: "win panel" "bin panel";
+  }
+
+  /* ---- Glass door ---- */
+  .window {
+    grid-area: win;
+    position: relative;
+    overflow: hidden;
+    padding: 1.4rem 0.9rem 0.4rem;
+    border: 6px solid var(--color-chrome);
+    border-radius: 0.9rem;
+    background: linear-gradient(var(--color-cabinet-2), var(--color-cabinet) 85%);
+    box-shadow: inset 0 0 0 2px var(--color-chrome-dark), inset 0 0 50px rgb(0 0 0 / 0.55);
+  }
+  .lightbar {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 10px;
+    background: var(--color-frost);
+    box-shadow: 0 0 40px 14px rgb(127 211 245 / 0.45);
+  }
+  .glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(115deg, transparent 18%, rgb(255 255 255 / 0.13) 19%, rgb(255 255 255 / 0.04) 30%, transparent 31%),
+      linear-gradient(115deg, transparent 58%, rgb(255 255 255 / 0.07) 59%, transparent 64%),
+      linear-gradient(rgb(127 211 245 / 0.1), transparent 40%);
+  }
+  .shelf {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0 0.2rem 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 8px solid var(--color-chrome-dark);
+    box-shadow: 0 2px 0 var(--color-chrome);
+  }
+  .slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0.6rem;
+    padding-top: 0.3rem;
+    outline-offset: 2px;
+  }
+  .slot:hover .item:first-child,
+  .slot:focus-visible .item:first-child {
+    transform: translateY(-4px);
+  }
+  .slot[aria-current="true"] {
+    background: rgb(255 201 60 / 0.15);
+  }
+  .facings {
+    display: flex;
+    justify-content: center;
+    gap: 2%;
+    width: 100%;
+    height: clamp(5.5rem, 13vw, 8.5rem);
+  }
+  .item {
+    width: 46%;
+    height: 100%;
+    transition: transform 150ms;
+    filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.45));
+  }
+  .coils {
+    display: flex;
+    justify-content: center;
+    gap: 2%;
+    width: 100%;
+    margin-top: -0.3rem;
+  }
+  .coil {
+    display: block;
+    width: 46%;
+    height: 14px;
+    border-radius: 999px;
+    background: repeating-linear-gradient(100deg, var(--color-chrome) 0 3px, transparent 3px 9px);
+    background-size: 18px 100%;
+  }
+  .coil.turning {
+    animation: coil 0.8s linear;
+  }
+  @keyframes coil {
+    to {
+      background-position: 36px 0;
+    }
+  }
+  .pricetag {
+    margin-top: 0.35rem;
+    max-width: 100%;
+    padding: 0.05rem 0.4rem;
+    font-family: var(--font-led);
+    font-size: 1.05rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: var(--color-frost);
+    color: var(--color-ink);
+    border-radius: 0.2rem;
+  }
+  .pricetag b {
+    color: var(--color-orange-dark);
+  }
+
+  /* ---- Pickup bin ---- */
+  .bin {
+    grid-area: bin;
+    height: 4.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.6rem;
+    background: var(--color-led-bg);
+    border: 5px solid var(--color-chrome-dark);
+    box-shadow: inset 0 12px 18px rgb(0 0 0 / 0.7);
+  }
+  .flap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border-radius: 0.3rem;
+    background: linear-gradient(var(--color-cabinet-2), var(--color-cabinet));
+    border: 2px solid var(--color-chrome-dark);
+    font-family: var(--font-display);
+    letter-spacing: 0.3em;
+    color: var(--color-chrome-dark);
+  }
+  .bin.ready .flap {
+    color: var(--color-sun);
+    animation: pulse 1s ease-in-out infinite;
+    cursor: pointer;
+  }
+  @keyframes pulse {
+    50% {
+      box-shadow: 0 0 18px var(--color-sun);
+    }
+  }
+
+  /* ---- Control panel ---- */
+  .panel {
+    grid-area: panel;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.8rem;
+    border-radius: 0.8rem;
+    background: linear-gradient(90deg, var(--color-cabinet-2), var(--color-cabinet));
+    border: 3px solid var(--color-chrome-dark);
+  }
+  .led {
+    display: block;
+    min-height: 3.6rem;
+    padding: 0.4rem 0.6rem;
+    font-family: var(--font-led);
+    font-size: 1.35rem;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--color-led);
+    background: var(--color-led-bg);
+    text-shadow: 0 0 6px rgb(109 255 138 / 0.8);
+    border: 3px solid var(--color-chrome-dark);
+    border-radius: 0.4rem;
+  }
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+  .keypad[hidden] {
+    display: none;
+  }
+  .keypad .key {
+    padding: 0.55rem 0;
+    font-size: 1.15rem;
+  }
+  .keypad .key-small {
+    font-size: 0.7rem;
+  }
+  .keypad .key-vend {
+    grid-column: 1 / -1;
+  }
+  .reader {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem;
+    border-radius: 0.5rem;
+    background: var(--color-ink);
+    color: var(--color-led);
+    font-size: 0.75rem;
+    line-height: 1.1;
+    border: 2px solid var(--color-chrome-dark);
+  }
+  .slots-hw {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.3rem;
+  }
+  .bill {
+    width: 62%;
+    height: 10px;
+    border-radius: 3px;
+    background: var(--color-ink);
+    box-shadow: 0 0 0 3px var(--color-chrome-dark);
+  }
+  .coin {
+    width: 6px;
+    height: 24px;
+    border-radius: 3px;
+    background: var(--color-ink);
+    box-shadow: 0 0 0 3px var(--color-chrome-dark);
+  }
+  .sticker-host {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.7rem;
+    border-radius: 0.6rem;
+    background: var(--color-orange);
+    color: var(--color-frost);
+    transform: rotate(-3deg);
+    box-shadow: 0 4px 0 var(--color-orange-dark);
+    font-size: 0.8rem;
+    transition: transform 150ms;
+  }
+  .sticker-host b {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1rem;
+  }
+  .sticker-host:hover {
+    transform: rotate(0deg) scale(1.03);
+  }
+  .coin-return {
+    align-self: center;
+    margin-top: auto;
+    width: 3.2rem;
+    height: 2.4rem;
+    border-radius: 0.4rem;
+    background: var(--color-led-bg);
+    box-shadow: inset 0 6px 8px rgb(0 0 0 / 0.8), 0 0 0 3px var(--color-chrome-dark);
+  }
+
+  /* ---- Base ---- */
+  .kick {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 0.9rem;
+    padding: 0.7rem;
+    border-radius: 0.4rem;
+    background: var(--color-cabinet-2);
+  }
+  .kick span {
+    width: 18%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-floor);
+  }
+  .floor {
+    max-width: 58rem;
+    height: 28px;
+    margin: -6px auto 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.7), transparent);
+  }
+
+  /* ---- Contents ---- */
+  .contents {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 52rem;
+    margin: 3rem auto 0;
+  }
+  .card {
+    padding: 1.4rem;
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    scroll-margin-top: 1.5rem;
+  }
+  .unwrap {
+    margin: auto;
+    width: min(40rem, calc(100% - 2rem));
+    padding: 1.6rem;
+    border: 4px solid var(--color-ink);
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .unwrap[open] {
+    animation: unwrap 280ms cubic-bezier(0.3, 0.6, 0.4, 1.3);
+  }
+  .unwrap::backdrop {
+    background: rgb(0 18 44 / 0.7);
+  }
+  @keyframes unwrap {
+    from {
+      transform: scale(0.6) rotate(-4deg);
+      opacity: 0;
+    }
+  }
+
+  /* ---- Phones: panel moves under the bin ---- */
+  @media (max-width: 40rem) {
+    .machine {
+      padding: 0.6rem;
+    }
+    .body {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "win" "bin" "panel";
+    }
+    .window {
+      padding: 1.1rem 0.4rem 0.2rem;
+    }
+    .pricetag {
+      font-size: 0.9rem;
+    }
+    .panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+    .led,
+    .keypad {
+      grid-column: 1 / -1;
+    }
+    .slots-hw,
+    .coin-return {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coil.turning,
+    .bin.ready .flap,
+    .unwrap[open] {
+      animation: none;
+    }
+  }
+</style>
 
 <script>
   const machine = document.querySelector<HTMLElement>("[data-machine]");
-  if (machine) {
+  const dialog = document.querySelector<HTMLDialogElement>("[data-dialog]");
+  const contents = document.querySelector<HTMLElement>("[data-contents]");
+  if (machine && dialog && contents) {
     const display = machine.querySelector<HTMLOutputElement>("[data-display]")!;
     const keypad = machine.querySelector<HTMLElement>("[data-keypad]")!;
-    const hint = machine.querySelector<HTMLElement>("[data-tray-hint]")!;
-    const panels = Array.from(machine.querySelectorAll<HTMLElement>("[data-panel]"));
-    const codes = panels.map((p) => p.dataset.panel!);
+    const bin = machine.querySelector<HTMLButtonElement>("[data-bin]")!;
+    const binLabel = machine.querySelector<HTMLElement>("[data-bin-label]")!;
+    const dialogBody = dialog.querySelector<HTMLElement>("[data-dialog-body]")!;
     const slotLinks = Array.from(machine.querySelectorAll<HTMLAnchorElement>("[data-slot]"));
+    const codes = slotLinks.map((a) => a.dataset.slot!);
     const idle = display.textContent!.trim();
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     let entry = "";
+    let busy = false;
+    let pending = "";
 
-    // With JavaScript: keypad on, tray shows one slot at a time.
+    // With JavaScript: keypad on, the contents live inside the machine.
     keypad.hidden = false;
-    hint.hidden = false;
-    panels.forEach((p) => (p.hidden = true));
+    contents.hidden = true;
 
     const show = (text: string) => (display.textContent = text);
 
-    const vend = (code: string, scroll: boolean) => {
-      const panel = panels.find((p) => p.dataset.panel === code);
-      if (!panel) {
-        show(`${code || "--"}: no such slot. Try again.`);
+    const open = (code: string) => {
+      const article = document.getElementById(`slot-${code}`);
+      if (!article) return;
+      dialogBody.replaceChildren(...Array.from(article.cloneNode(true).childNodes));
+      dialog.showModal();
+      bin.classList.remove("ready");
+      bin.disabled = true;
+      binLabel.textContent = "Push";
+      pending = "";
+    };
+
+    const vend = async (code: string) => {
+      if (busy) return;
+      const link = slotLinks.find((a) => a.dataset.slot === code);
+      if (!link) {
+        show(`${code || "--"}: no such slot`);
         entry = "";
         return;
       }
-      show(`${code} vending...`);
-      hint.hidden = true;
-      slotLinks.forEach((a) => a.setAttribute("aria-current", String(a.dataset.slot === code)));
-      panels.forEach((p) => {
-        p.hidden = p !== panel;
-        p.classList.remove("drop");
-      });
-      void panel.offsetWidth; // restart the drop animation
-      panel.classList.add("drop");
-      history.replaceState(null, "", `#slot-${code}`);
-      setTimeout(() => show(`${code} ready below. Enjoy.`), 600);
-      if (scroll) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      panel.focus({ preventScroll: true });
+      busy = true;
       entry = "";
+      slotLinks.forEach((a) => a.setAttribute("aria-current", String(a === link)));
+      show(`${code} vending...`);
+      const item = link.querySelector<HTMLElement>("[data-item]")!;
+      const coil = link.querySelector<HTMLElement>("[data-coil]")!;
+      if (!reduced) {
+        coil.classList.remove("turning");
+        void coil.offsetWidth;
+        coil.classList.add("turning");
+        const from = item.getBoundingClientRect();
+        const to = bin.getBoundingClientRect();
+        const drop = to.top + to.height / 2 - (from.top + from.height / 2);
+        const fall = item.animate(
+          [
+            { transform: "none" },
+            { transform: "translateY(10px) scale(1.06)", offset: 0.35 },
+            { transform: `translateY(${drop}px) rotate(14deg) scale(0.8)`, opacity: 1, offset: 0.9 },
+            { transform: `translateY(${drop}px) rotate(14deg) scale(0.8)`, opacity: 0 },
+          ],
+          { duration: 1100, easing: "cubic-bezier(.5,0,.75,0)" },
+        );
+        await fall.finished;
+      }
+      show(`${code} ready. Push the flap.`);
+      pending = code;
+      bin.disabled = false;
+      bin.classList.add("ready");
+      binLabel.textContent = "Take it";
+      history.replaceState(null, "", `#slot-${code}`);
+      busy = false;
+      if (reduced) open(code);
     };
 
     keypad.addEventListener("click", (e) => {
@@ -186,26 +606,33 @@ const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
       if (!btn) return;
       if (btn.dataset.key) {
         const k = btn.dataset.key;
-        // A letter starts a new code; a number finishes it.
         entry = /[A-Z]/.test(k) ? k : (entry.slice(0, 1) + k).slice(0, 2);
         show(`Selection: ${entry}${entry.length < 2 ? "_" : ""}`);
       } else if ("clear" in btn.dataset) {
         entry = "";
         show(idle);
       } else if ("vend" in btn.dataset) {
-        vend(entry, true);
+        void vend(entry);
       }
     });
-
     slotLinks.forEach((a) =>
       a.addEventListener("click", (e) => {
         e.preventDefault();
-        vend(a.dataset.slot!, true);
+        void vend(a.dataset.slot!);
       }),
     );
+    bin.addEventListener("click", () => pending && open(pending));
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener("close", () => {
+      show("Restocked. Always.");
+      slotLinks.forEach((a) => a.removeAttribute("aria-current"));
+      setTimeout(() => show(idle), 2500);
+    });
 
-    // Deep links like /#slot-B1 open that slot.
+    // Deep links like /#slot-B2 open that item straight away.
     const fromHash = location.hash.replace("#slot-", "");
-    if (codes.includes(fromHash)) vend(fromHash, false);
+    if (codes.includes(fromHash)) open(fromHash);
   }
 </script>

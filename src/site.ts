@@ -45,11 +45,16 @@ export type Slot = {
   body: string[];
   link?: { href: string; label: string };
   tone: "orange" | "lime" | "sky" | "sun";
+  /** Short "brand name" printed on the item. */
+  brand: string;
+  /** What the item on the coil looks like. */
+  product: "bottle" | "can" | "chips" | "bar" | "water" | "box";
 };
 
 export const slots: Slot[] = [
   {
     code: "A1",
+    brand: "STOCKED",
     label: "Always stocked",
     tag: "No empty coils",
     title: "It tells us before it runs low",
@@ -58,9 +63,11 @@ export const slots: Slot[] = [
       "So the thing you came for is there when you walk up. Not sold out since Tuesday.",
     ],
     tone: "lime",
+    product: "bottle",
   },
   {
     code: "A2",
+    brand: "ICE COLD",
     label: "Kept cold",
     tag: "Fridge, not shelf",
     title: "Refrigerated, start to finish",
@@ -69,9 +76,11 @@ export const slots: Slot[] = [
       // TODO: what they actually stock (drinks, snacks, meals) once the owners confirm.
     ],
     tone: "sky",
+    product: "can",
   },
   {
-    code: "A3",
+    code: "B1",
+    brand: "HOW TO",
     label: "How it works",
     tag: "Tap, open, grab",
     title: "Tap, open, grab, go",
@@ -80,9 +89,11 @@ export const slots: Slot[] = [
       "Tap your card or phone to unlock the door. Take what you want. The machine sees what you took and charges only for that.",
     ],
     tone: "sun",
+    product: "chips",
   },
   {
-    code: "B1",
+    code: "B2",
+    brand: "HOST ME",
     label: "Host a machine",
     tag: "Free for hosts",
     title: "Want one at your shop?",
@@ -92,17 +103,21 @@ export const slots: Slot[] = [
     ],
     link: { href: "/host/", label: "Request a machine" },
     tone: "orange",
+    product: "bar",
   },
   {
-    code: "B2",
+    code: "C1",
+    brand: "FIND US",
     label: "Where we are",
     tag: "Belmont, NC",
     title: "Where to find us",
     body: [],
     tone: "sky",
+    product: "water",
   },
   {
-    code: "B3",
+    code: "C2",
+    brand: "HELLO",
     label: "Who we are",
     tag: "Local owners",
     title: "Stephen and Nancy",
@@ -111,6 +126,7 @@ export const slots: Slot[] = [
       // TODO: a line or two in their own words.
     ],
     tone: "lime",
+    product: "box",
   },
 ];
 
