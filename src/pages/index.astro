@@ -1,14 +1,112 @@
 ---
 import Base from "../layouts/Base.astro";
 import Machine from "../components/Machine.astro";
-import { site } from "../site";
+import { points, promises, site } from "../site";
 ---
 
 <Base>
   <Machine />
-  <section class="mx-auto w-full max-w-3xl px-4 pb-12 text-center sm:px-6">
-    <h2 class="text-2xl text-frost sm:text-3xl">{site.name}</h2>
-    <p class="mt-3 text-lg text-chrome">{site.description}</p>
-    <a href="/host/" class="key key-vend mt-6 inline-block px-6 py-3">Host a machine</a>
+
+  <!-- LED strip with the flier's three promises. -->
+  <div class="ticker led mx-auto mb-12 w-[min(100%-2rem,60rem)] overflow-hidden py-2 text-2xl uppercase sm:text-3xl" aria-label={promises.join(". ")}>
+    <div class="ticker-run" aria-hidden="true">
+      {[0, 1].map(() => promises.map((p) => <span class="px-6">{p} <span class="text-sun">★</span></span>))}
+    </div>
+  </div>
+
+  <section class="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6" aria-labelledby="why">
+    <p class="font-sign text-center text-3xl text-sun sm:text-5xl">{site.tagline}</p>
+    <h2 id="why" class="mt-4 text-center text-2xl text-frost sm:text-4xl">Why choose {site.name}?</h2>
+
+    <ol class="mt-10 flex flex-col gap-5">
+      {
+        points.map((pt, i) => (
+          <li class="point" style={`--tone: var(--color-${pt.tone})`}>
+            <span class="point-code" aria-hidden="true">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <div>
+              <h3 class="point-title">{pt.title}</h3>
+              <p class="mt-1 text-lg text-chrome">{pt.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-12 flex flex-col items-center gap-4 text-center">
+      <p class="text-xl text-frost">Let's find the right vending solution for your location.</p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <a href="/host/" class="key key-vend px-6 py-3">Host a machine</a>
+        {site.phone && <a href={`tel:${site.phone}`} class="key px-6 py-3">Call {site.phone}</a>}
+      </div>
+      {site.email && <a href={`mailto:${site.email}`} class="text-chrome underline">{site.email}</a>}
+    </div>
   </section>
 </Base>
+
+<style>
+  .point {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--color-cabinet);
+    border: 3px solid var(--tone);
+    border-radius: 1rem;
+    box-shadow: 8px 8px 0 var(--tone);
+    transition: transform 150ms, box-shadow 150ms;
+  }
+  .point:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 11px 11px 0 var(--tone);
+  }
+  .point-code {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.75rem;
+    background: var(--tone);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+  }
+  .point-title {
+    font-family: var(--font-display);
+    color: var(--tone);
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    line-height: 1.05;
+  }
+  @media (max-width: 30rem) {
+    .point {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+  }
+  .ticker-run {
+    display: flex;
+    width: max-content;
+    white-space: nowrap;
+    animation: run 22s linear infinite;
+  }
+  @keyframes run {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-run {
+      animation: none;
+      flex-wrap: wrap;
+      width: auto;
+      justify-content: center;
+    }
+    .point,
+    .point:hover {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

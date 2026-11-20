@@ -10,22 +10,34 @@ import type { Availability } from "./lib/schedule";
 export const site = {
   name: "Oogum Vending",
   owners: "Stephen and Nancy Turner",
-  // TODO: tagline from the owners. This is a working line.
-  tagline: "Cold, stocked and smart. Every time you walk up.",
-  url: "https://oogumvending.com", // TODO: confirm the domain
+  // From the owners' flier.
+  tagline: "Convenience, Reimagined.",
+  url: "https://oogumvending.com",
   description:
-    "Oogum Vending runs refrigerated smart vending machines in Belmont, NC. The machines track their own stock, so they get restocked before anything runs out.",
+    "Oogum Vending places smart market machines in Gaston County, NC. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
   hometown: "Belmont, NC",
-  serviceArea: "North Carolina",
+  serviceArea: "Gaston County, NC",
 
-  // Contact. Empty values are hidden on the site. TODO: all three.
-  email: "",
-  phone: "",
+  // Contact, from the owners' flier. Empty values are hidden on the site.
+  email: "Connect@OogumVending.com",
+  phone: "704-559-9650",
   // Machine platform, e.g. "Nayax" or the cooler maker. Shown on the hub only.
   machinePlatform: "",
   // Path under public/. Their current logo; swap the file if they pick a new one. Empty shows a text sign.
   logo: "/oogum-logo.png",
 } as const;
+
+/** The flier's "Why choose Oogum Vending?" points. Shown big on the home page. */
+export const points: { title: string; body: string; tone: "orange" | "lime" | "sky" | "sun" }[] = [
+  { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", tone: "sky" },
+  { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", tone: "lime" },
+  { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", tone: "sun" },
+  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", tone: "sky" },
+  { title: "100% free service", body: "Absolutely no cost to you.", tone: "orange" },
+];
+
+/** Short promises from the flier, shown on the LED strip. */
+export const promises = ["Improve satisfaction", "Hassle-free service", "No cost to you"];
 
 /** Where machines are today. Real locations only. */
 export const locations: { name: string; city: string; note?: string }[] = [
@@ -72,8 +84,8 @@ export const slots: Slot[] = [
     tag: "Fridge, not shelf",
     title: "Refrigerated, start to finish",
     body: [
-      "These are fridges, not snack spirals. Drinks are cold and fresh food stays fresh.",
-      // TODO: what they actually stock (drinks, snacks, meals) once the owners confirm.
+      "Popular snacks, beverages and healthier options, picked to fit your location.",
+      "The machines are refrigerated, so drinks stay cold and fresh food stays fresh.",
     ],
     tone: "sky",
     product: "can",
@@ -85,8 +97,7 @@ export const slots: Slot[] = [
     tag: "Tap, open, grab",
     title: "Tap, open, grab, go",
     body: [
-      // TODO: confirm the exact steps for their machine model.
-      "Tap your card or phone to unlock the door. Take what you want. The machine sees what you took and charges only for that.",
+      "Swipe or tap your card or phone to unlock the door. Grab what you want and close it. The machine sees what you took and checks you out on its own.",
     ],
     tone: "sun",
     product: "chips",
@@ -98,7 +109,7 @@ export const slots: Slot[] = [
     tag: "Free for hosts",
     title: "Want one at your shop?",
     body: [
-      "We bring the machine, stock it, clean it and keep it running. You give it a plug and a spot your customers walk past.",
+      "100% free service. We bring the machine, stock it, monitor it and keep it running. You give it a plug and a spot your customers walk past.",
       "We're adding machines at Firestone stores across North Carolina, and we're open to other busy waiting rooms too.",
     ],
     link: { href: "/host/", label: "Request a machine" },
