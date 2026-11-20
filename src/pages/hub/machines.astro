@@ -1,0 +1,38 @@
+---
+import Hub from "../../layouts/Hub.astro";
+import { locations, site } from "../../site";
+
+export const prerender = false;
+---
+
+<Hub title="Machines">
+  <div>
+    <h1 class="text-3xl">Machines</h1>
+    <p class="mt-2 max-w-2xl text-muted">Stock levels, sales and low-stock alerts for each machine, in one place.</p>
+  </div>
+
+  <ul class="grid gap-4 sm:grid-cols-2">
+    {
+      locations.map((l) => (
+        <li class="rounded-card border-2 border-line bg-frost p-5">
+          <p class="font-display text-lg">{l.name}</p>
+          <p class="text-sm text-muted">{l.city}</p>
+          <p class="led mt-4 px-3 py-2 text-xl">Stock data: not connected</p>
+        </li>
+      ))
+    }
+  </ul>
+
+  <section class="rounded-card border-2 border-dashed border-line p-6">
+    <h2 class="text-xl">Not connected yet</h2>
+    <p class="mt-2 max-w-2xl">
+      {site.machinePlatform
+        ? `Your machines run on ${site.machinePlatform}. We're working on pulling its data in here.`
+        : "Your machines already send you low-stock alerts through their own app. To show stock and sales here too, we need to know which platform runs them and whether it can export a sales report."}
+    </p>
+    <ul class="mt-4 list-disc pl-5 text-sm text-muted">
+      <li>A weekly sales or inventory export (CSV) is enough to build charts on.</li>
+      <li>A live connection is possible only if the platform offers an API to operators.</li>
+    </ul>
+  </section>
+</Hub>

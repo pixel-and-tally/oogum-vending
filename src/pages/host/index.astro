@@ -1,0 +1,35 @@
+---
+import Base from "../../layouts/Base.astro";
+import HostForm from "../../components/HostForm.astro";
+
+// What a host gets. TODO: confirm each line with Stephen and Nancy (commission? power needs?).
+const deal = [
+  { k: "Cost to you", v: "Nothing. We bring and own the machine." },
+  { k: "What you give", v: "A standard outlet and a spot people walk past." },
+  { k: "Stocking", v: "The machine tells us when it runs low. We restock before it's empty." },
+  { k: "Cleaning and fixes", v: "Ours. Call us and one of the owners picks up." },
+];
+---
+
+<Base title="Host a machine" description="Get a free refrigerated smart vending machine for your store's waiting room. Oogum Vending stocks it, cleans it and keeps it running.">
+  <section class="mx-auto grid w-full max-w-6xl gap-8 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+    <div class="flex flex-col gap-6">
+      <p class="led w-fit px-3 py-1 text-xl uppercase">Now placing machines in NC</p>
+      <h1 class="text-4xl text-frost sm:text-5xl">Give your waiting room a cold drink.</h1>
+      <p class="text-lg text-chrome">
+        We're adding machines at Firestone stores across North Carolina, starting from our first one in Belmont. Tell us about your store and we'll come take a look.
+      </p>
+      <dl class="cabinet flex flex-col gap-4 p-5">
+        {
+          deal.map((d) => (
+            <div class="border-b border-cabinet-2 pb-3 last:border-0 last:pb-0">
+              <dt class="font-display text-sm text-sun">{d.k}</dt>
+              <dd class="mt-1 text-inverse">{d.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+    <HostForm />
+  </section>
+</Base>

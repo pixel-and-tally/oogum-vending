@@ -1,0 +1,202 @@
+---
+// The home page IS the machine. The window shows the slots, the panel has a
+// keypad, and whatever you pick drops into the tray at the bottom.
+// Without JavaScript every slot's panel sits open in the tray and each slot
+// link jumps to it, so nothing is hidden from anyone.
+import SlotIcon from "./SlotIcon.astro";
+import { locations, site, slots } from "../site";
+
+const tone = {
+  cherry: "bg-cherry text-frost",
+  lime: "bg-lime text-ink",
+  sky: "bg-sky text-ink",
+  sun: "bg-sun text-ink",
+} as const;
+
+const rows = [...new Set(slots.map((s) => s.code[0]))];
+const cols = [...new Set(slots.map((s) => s.code.slice(1)))];
+---
+
+<section class="mx-auto w-full max-w-6xl px-4 pt-6 pb-16 sm:px-6" aria-label="The Oogum machine">
+  <div class="cabinet p-3 sm:p-5" data-machine>
+    <!-- Lit sign across the top -->
+    <header class="mb-4 rounded-2xl bg-cabinet-2 px-4 py-5 text-center sm:py-7">
+      <h1 class="font-sign text-5xl tracking-wide text-sun drop-shadow-[0_0_14px_var(--color-sun)] sm:text-7xl">
+        Oogum
+      </h1>
+      <p class="mt-2 font-display text-sm tracking-[0.3em] text-cold sm:text-base">Vending · {site.hometown}</p>
+    </header>
+
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
+      <!-- The fridge window -->
+      <div class="glass p-3 sm:p-5">
+        <p class="sr-only">Pick a slot to read about it.</p>
+        <ul class="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3">
+          {
+            slots.map((s) => (
+              <li class="shelf flex flex-col items-center gap-2 pb-3">
+                <a
+                  href={`#slot-${s.code}`}
+                  data-slot={s.code}
+                  class="group flex w-full flex-col items-center gap-2 rounded-xl p-2 text-center transition-transform hover:-translate-y-1 focus-visible:-translate-y-1 aria-[current=true]:bg-sun/30 aria-[current=true]:ring-4 aria-[current=true]:ring-sun"
+                >
+                  <span
+                    class={`flex h-24 w-24 flex-col items-center justify-center gap-1 px-1 rounded-[1.2rem_1.2rem_0.6rem_0.6rem] border-[3px] border-ink shadow-[inset_-8px_0_0_rgb(0_0_0/0.12)] sm:h-28 sm:w-28 ${tone[s.tone]}`}
+                  >
+                    <SlotIcon code={s.code} class="h-10 w-10" />
+                    <span class="font-display text-[0.6rem] leading-tight">{s.label}</span>
+                  </span>
+                  <span class="tag px-2 py-0.5">
+                    {s.code}<span class="hidden sm:inline"> · {s.tag}</span>
+                  </span>
+                </a>
+                <span class="coil w-4/5" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- Control panel -->
+      <div class="flex flex-col gap-4 rounded-2xl bg-cabinet-2 p-4">
+        <output class="led block min-h-[4.5rem] px-3 py-2 text-2xl leading-tight uppercase" data-display aria-live="polite">
+          Always cold. Always stocked.
+        </output>
+
+        <div class="grid grid-cols-3 gap-2" role="group" aria-label="Keypad" data-keypad hidden>
+          {rows.map((r) => <button type="button" class="key py-3 text-xl" data-key={r}>{r}</button>)}
+          {cols.map((c) => <button type="button" class="key py-3 text-xl" data-key={c}>{c}</button>)}
+          <button type="button" class="key py-3 text-sm" data-clear>Clear</button>
+          <button type="button" class="key key-vend col-span-3 py-3 text-xl" data-vend>Vend</button>
+        </div>
+
+        <!-- Card reader -->
+        <div class="flex items-center gap-3 rounded-xl border-2 border-chrome-dark p-3 text-inverse">
+          <span class="h-3 w-3 shrink-0 animate-pulse rounded-full bg-led shadow-[0_0_8px_var(--color-led)]"></span>
+          <p class="text-sm">Tap a card or phone to open the door.</p>
+        </div>
+
+        <!-- Coin slot doubles as the host call to action -->
+        <a
+          href="/host/"
+          class="group flex items-center justify-between gap-3 rounded-xl bg-cherry px-4 py-4 font-display text-frost shadow-[0_5px_0_var(--color-cherry-dark)] transition-transform hover:-translate-y-0.5"
+        >
+          <span>Host a machine</span>
+          <span class="h-8 w-1.5 rounded-full bg-cabinet" aria-hidden="true"></span>
+        </a>
+        <p class="text-center text-xs text-chrome">Free for your shop. We stock it, you plug it in.</p>
+      </div>
+    </div>
+
+    <!-- Pickup tray -->
+    <div class="tray mt-4 p-4 sm:p-6" data-tray>
+      <p class="mb-3 font-display text-xs tracking-[0.3em] text-chrome-dark">Pick up here</p>
+      <p class="led-hint text-lg text-inverse" data-tray-hint hidden>
+        Press a letter, a number, then <span class="font-display text-cherry">Vend</span>. Or tap anything in the window.
+      </p>
+      <div class="flex flex-col gap-4">
+        {
+          slots.map((s) => (
+            <article id={`slot-${s.code}`} data-panel={s.code} class="scroll-mt-6 rounded-xl bg-paper p-5 text-ink sm:p-7" tabindex="-1">
+              <p class="tag mb-3 inline-block px-2 py-0.5">{s.code}</p>
+              <h2 class="text-3xl sm:text-4xl">{s.title}</h2>
+              <div class="mt-3 flex max-w-2xl flex-col gap-3 text-lg">
+                {s.body.filter(Boolean).map((p) => <p>{p}</p>)}
+                {s.code === "B2" && (
+                  <ul class="flex flex-col gap-2">
+                    {locations.map((l) => (
+                      <li class="flex items-baseline gap-2">
+                        <span class="font-display text-cherry">●</span>
+                        <span>
+                          <strong>{l.name}</strong>, {l.city}
+                          {l.note && <span class="text-muted"> · {l.note}</span>}
+                        </span>
+                      </li>
+                    ))}
+                    <li class="text-muted">More North Carolina Firestones coming.</li>
+                  </ul>
+                )}
+              </div>
+              {s.link && (
+                <a href={s.link.href} class="mt-5 inline-block rounded-control bg-cherry px-5 py-3 font-display text-frost shadow-[0_4px_0_var(--color-cherry-dark)]">
+                  {s.link.label}
+                </a>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const machine = document.querySelector<HTMLElement>("[data-machine]");
+  if (machine) {
+    const display = machine.querySelector<HTMLOutputElement>("[data-display]")!;
+    const keypad = machine.querySelector<HTMLElement>("[data-keypad]")!;
+    const hint = machine.querySelector<HTMLElement>("[data-tray-hint]")!;
+    const panels = Array.from(machine.querySelectorAll<HTMLElement>("[data-panel]"));
+    const codes = panels.map((p) => p.dataset.panel!);
+    const slotLinks = Array.from(machine.querySelectorAll<HTMLAnchorElement>("[data-slot]"));
+    const idle = display.textContent!.trim();
+    let entry = "";
+
+    // With JavaScript: keypad on, tray shows one slot at a time.
+    keypad.hidden = false;
+    hint.hidden = false;
+    panels.forEach((p) => (p.hidden = true));
+
+    const show = (text: string) => (display.textContent = text);
+
+    const vend = (code: string, scroll: boolean) => {
+      const panel = panels.find((p) => p.dataset.panel === code);
+      if (!panel) {
+        show(`${code || "--"}: no such slot. Try again.`);
+        entry = "";
+        return;
+      }
+      show(`${code} vending...`);
+      hint.hidden = true;
+      slotLinks.forEach((a) => a.setAttribute("aria-current", String(a.dataset.slot === code)));
+      panels.forEach((p) => {
+        p.hidden = p !== panel;
+        p.classList.remove("drop");
+      });
+      void panel.offsetWidth; // restart the drop animation
+      panel.classList.add("drop");
+      history.replaceState(null, "", `#slot-${code}`);
+      setTimeout(() => show(`${code} ready below. Enjoy.`), 600);
+      if (scroll) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      panel.focus({ preventScroll: true });
+      entry = "";
+    };
+
+    keypad.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest("button");
+      if (!btn) return;
+      if (btn.dataset.key) {
+        const k = btn.dataset.key;
+        // A letter starts a new code; a number finishes it.
+        entry = /[A-Z]/.test(k) ? k : (entry.slice(0, 1) + k).slice(0, 2);
+        show(`Selection: ${entry}${entry.length < 2 ? "_" : ""}`);
+      } else if ("clear" in btn.dataset) {
+        entry = "";
+        show(idle);
+      } else if ("vend" in btn.dataset) {
+        vend(entry, true);
+      }
+    });
+
+    slotLinks.forEach((a) =>
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        vend(a.dataset.slot!, true);
+      }),
+    );
+
+    // Deep links like /#slot-B1 open that slot.
+    const fromHash = location.hash.replace("#slot-", "");
+    if (codes.includes(fromHash)) vend(fromHash, false);
+  }
+</script>

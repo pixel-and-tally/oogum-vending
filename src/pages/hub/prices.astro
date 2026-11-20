@@ -1,0 +1,182 @@
+---
+import Hub from "../../layouts/Hub.astro";
+import { bestPrices, money, parsePrice, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
+import { getStore, newId } from "../../lib/store";
+import { localDateString } from "../../lib/schedule";
+import { stores } from "../../site";
+
+export const prerender = false;
+
+const store = await getStore();
+let invalid: PriceField[] = [];
+let draft: Record<string, string> = {};
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("action") === "delete") {
+    const id = String(form.get("id") ?? "");
+    const rows = await store.read<PriceEntry>("prices");
+    await store.write("prices", rows.filter((r) => r.id !== id));
+    return Astro.redirect("/hub/prices/", 303);
+  }
+  const result = parsePrice(form, Astro.locals.user ?? "", newId());
+  if (result.ok) {
+    const rows = await store.read<PriceEntry>("prices");
+    rows.unshift(result.entry);
+    await store.write("prices", rows);
+    return Astro.redirect("/hub/prices/?added=1", 303);
+  }
+  invalid = result.invalid;
+  draft = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
+}
+
+const entries = await store.read<PriceEntry>("prices");
+const best = bestPrices(entries);
+const recent = entries.slice(0, 25);
+const today = localDateString(new Date(), "America/New_York");
+const added = Astro.url.searchParams.has("added");
+
+const errors: Record<PriceField, string> = {
+  item: "What did you price?",
+  store: "Pick a store.",
+  price: "Enter the pack price, like 18.99.",
+  qty: "How many are in the pack?",
+  unit: "",
+  date: "Enter the date you saw it.",
+};
+const bad = (f: PriceField) => invalid.includes(f);
+const control = "w-full rounded-control border-2 border-line bg-frost px-3 py-2.5 outline-none focus:border-cabinet aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger/5";
+const items = [...new Set(entries.map((e) => e.item))].sort();
+---
+
+<Hub title="Prices">
+  <div>
+    <h1 class="text-3xl">Bulk prices</h1>
+    <p class="mt-2 max-w-2xl text-muted">
+      Log a price when you see one: a receipt, a shelf tag, the store app. The table works out the cheapest place for each item, per can or bag, using the latest price at each store.
+    </p>
+  </div>
+
+  <section class="rounded-card border-2 border-line bg-frost p-5" aria-labelledby="add-heading">
+    <h2 id="add-heading" class="text-xl">Add a price</h2>
+    {added && <p role="status" class="mt-3 text-sm font-semibold text-success">Saved.</p>}
+    {invalid.length > 0 && (
+      <p role="alert" class="mt-3 rounded-control border-2 border-danger bg-danger/5 px-4 py-2 text-sm font-semibold text-danger">
+        {invalid.length === 1 ? "One thing needs a fix." : `${invalid.length} things need a fix.`}
+      </p>
+    )}
+    <form method="POST" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6" novalidate data-first-error={invalid[0] ?? ""}>
+      <div class="flex flex-col gap-1 lg:col-span-2">
+        <label for="item" class="text-sm font-bold">Item</label>
+        <input id="item" name="item" list="item-list" autocomplete="off" required value={draft.item} placeholder="Coke 12 oz cans" aria-invalid={bad("item") || undefined} aria-describedby="item-error" class={control} />
+        <datalist id="item-list">{items.map((i) => <option value={i} />)}</datalist>
+        <p id="item-error" class="text-sm text-danger" hidden={!bad("item")}>{errors.item}</p>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="store" class="text-sm font-bold">Store</label>
+        <select id="store" name="store" autocomplete="off" required aria-invalid={bad("store") || undefined} aria-describedby="store-error" class={control}>
+          <option value="">Choose</option>
+          {stores.map((s) => <option value={s} selected={draft.store === s}>{s}</option>)}
+        </select>
+        <p id="store-error" class="text-sm text-danger" hidden={!bad("store")}>{errors.store}</p>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="price" class="text-sm font-bold">Pack price ($)</label>
+        <input id="price" name="price" inputmode="decimal" autocomplete="off" required value={draft.price} placeholder="18.99" aria-invalid={bad("price") || undefined} aria-describedby="price-error" class={control} />
+        <p id="price-error" class="text-sm text-danger" hidden={!bad("price")}>{errors.price}</p>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="qty" class="text-sm font-bold">Count in pack</label>
+        <input id="qty" name="qty" inputmode="numeric" autocomplete="off" required value={draft.qty} placeholder="35" aria-invalid={bad("qty") || undefined} aria-describedby="qty-error" class={control} />
+        <p id="qty-error" class="text-sm text-danger" hidden={!bad("qty")}>{errors.qty}</p>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="unit" class="text-sm font-bold">Unit</label>
+        <input id="unit" name="unit" autocomplete="off" value={draft.unit} placeholder="can" class={control} />
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="date" class="text-sm font-bold">Date seen</label>
+        <input id="date" name="date" type="date" autocomplete="off" required value={draft.date ?? today} aria-invalid={bad("date") || undefined} aria-describedby="date-error" class={control} />
+        <p id="date-error" class="text-sm text-danger" hidden={!bad("date")}>{errors.date}</p>
+      </div>
+      <div class="flex flex-col gap-1 sm:col-span-2 lg:col-span-4">
+        <label for="note" class="text-sm font-bold">Note <span class="font-normal text-muted">(optional)</span></label>
+        <input id="note" name="note" autocomplete="off" value={draft.note} placeholder="Sale through Sunday, Gastonia store" class={control} />
+      </div>
+      <div class="flex items-end">
+        <button class="key key-vend w-full px-5 py-2.5">Save price</button>
+      </div>
+    </form>
+  </section>
+
+  <section aria-labelledby="best-heading">
+    <h2 id="best-heading" class="text-xl">Cheapest place to buy</h2>
+    {
+      best.length === 0 ? (
+        <p class="mt-3 rounded-card border-2 border-dashed border-line p-6 text-muted">
+          No prices yet. Add the next few things you restock and this fills in.
+        </p>
+      ) : (
+        <div class="mt-3 overflow-x-auto rounded-card border-2 border-line bg-frost">
+          <table class="w-full min-w-[40rem] text-left text-sm">
+            <thead class="bg-glass text-xs uppercase">
+              <tr>
+                <th class="px-4 py-3">Item</th>
+                <th class="px-4 py-3">Best store</th>
+                <th class="px-4 py-3">Per unit</th>
+                <th class="px-4 py-3">Other stores (per unit)</th>
+                <th class="px-4 py-3">Saves per unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {best.map((b) => (
+                <tr class="border-t border-line">
+                  <td class="px-4 py-3 font-semibold">{b.item}</td>
+                  <td class="px-4 py-3">
+                    <span class="rounded bg-lime px-2 py-0.5 font-semibold">{b.best.store}</span>
+                    <span class="ml-1 text-muted">{money(b.best.price)} / {b.best.qty}, {b.best.date}</span>
+                  </td>
+                  <td class="px-4 py-3 font-led text-xl">{money(unitPrice(b.best))} / {b.unit}</td>
+                  <td class="px-4 py-3 text-muted">
+                    {b.byStore.slice(1).map((e) => `${e.store} ${money(unitPrice(e))}`).join(", ") || "Only one store so far"}
+                  </td>
+                  <td class="px-4 py-3">{b.byStore.length > 1 ? money(b.spread) : ""}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </section>
+
+  {
+    recent.length > 0 && (
+      <section aria-labelledby="log-heading">
+        <h2 id="log-heading" class="text-xl">Latest entries</h2>
+        <ul class="mt-3 divide-y divide-line rounded-card border-2 border-line bg-frost">
+          {recent.map((e) => (
+            <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+              <span>
+                <strong>{e.item}</strong> at {e.store}: {money(e.price)} for {e.qty} {e.unit}
+                <span class="text-muted"> · {e.date}{e.by && `, ${e.by}`}{e.note && ` · ${e.note}`}</span>
+              </span>
+              <form method="POST">
+                <input type="hidden" name="action" value="delete" />
+                <input type="hidden" name="id" value={e.id} />
+                <button class="text-xs text-danger underline">Remove</button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Hub>
+
+<script>
+  // After a failed save, put the cursor on the first field that needs a fix.
+  const form = document.querySelector<HTMLFormElement>("[data-first-error]");
+  const first = form?.dataset.firstError;
+  if (first) document.getElementById(first)?.focus();
+</script>
