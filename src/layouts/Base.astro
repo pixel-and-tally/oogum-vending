@@ -1,4 +1,5 @@
 ---
+import SiteCredit from "../components/SiteCredit.astro";
 import "../theme.css";
 import { site } from "../site";
 
@@ -86,6 +87,7 @@ const here = Astro.url.pathname;
           <a href="/host/" class="underline">Host a machine</a>
           <a href="/hub/" class="underline">Owner login</a>
           <p class="text-chrome">© {year} {site.name}</p>
+          <SiteCredit class="text-chrome" />
         </div>
       </div>
     </footer>
