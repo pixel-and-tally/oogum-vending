@@ -1,8 +1,203 @@
 ---
 import Base from "../layouts/Base.astro";
-import Machine from "../components/Machine.astro";
+import StepArt from "../components/StepArt.astro";
+import { cornerstones, locations, site, steps } from "../site";
+
 ---
 
 <Base>
-  <Machine />
+  <!-- Hero: short pitch on the left, their machine on the right. Flat and plain on purpose. -->
+  <section class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-6 pb-14 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+    <div class="flex flex-col items-start gap-6">
+      <p class="label">Family owned in {site.hometown}</p>
+      <h1 class="text-[clamp(2.3rem,5vw,3.75rem)] text-ink">A vending machine with more options.</h1>
+      <p class="max-w-xl text-xl leading-relaxed text-muted">
+        Upgrade your store with a smart fridge full of cold drinks, snacks and healthier picks. Your customers tap, grab and go. We stock it, fix it and keep it full, and it costs you nothing. Honestly, the hardest part is picking where it goes.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+        {site.phone && <a href={`tel:${site.phone}`} class="key px-7 py-3.5 text-lg">Call {site.phone}</a>}
+      </div>
+    </div>
+    <figure class="photo md:mt-10">
+      <img src="/machine-photo.png" alt="An Oogum smart vending machine: a black glass-door fridge stocked with drinks and snacks" width="231" height="485" />
+    </figure>
+  </section>
+
+  <!-- Navy break: where we serve. -->
+  <div class="bg-cabinet py-4 text-inverse">
+    <p class="mx-auto w-[min(100%-2rem,72rem)] text-center font-semibold sm:text-lg">
+      <span class="text-lime">Proudly serving</span> {site.towns.join(", ")} and the towns in between.
+    </p>
+  </div>
+
+  <!-- The five pillars from the flier: the value every host gets, side by side. -->
+  <section class="mx-auto w-[min(100%-2rem,72rem)] py-16 sm:py-20" aria-labelledby="pillars">
+    <div class="flex flex-col items-center gap-3 text-center">
+      <p class="label">Our pillars</p>
+      <h2 id="pillars" class="text-[clamp(2rem,4.5vw,3.25rem)] text-ink">Five pillars. Every machine. No exceptions.</h2>
+      <p class="max-w-2xl text-lg text-muted">This is what you get when an Oogum machine moves in. We're a little stubborn about all five.</p>
+    </div>
+    <ol class="pillars mt-12">
+      {
+        cornerstones.map((c, i) => (
+          <li class="pillar">
+            <span class="pillar-num" aria-hidden="true">{i + 1}</span>
+            <h3 class="pillar-title">{c.title}</h3>
+            <p class="text-muted">{c.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="mt-12 flex justify-center">
+      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+    </div>
+  </section>
+
+  <!-- Family owned: Stephen and Nancy. -->
+  <section class="border-y border-line bg-paper py-16" aria-labelledby="family">
+    <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16">
+      <figure class="owners">
+        <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" loading="lazy" />
+      </figure>
+      <div class="flex flex-col items-start gap-5">
+        <p class="label">Family owned and operated</p>
+        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Meet Stephen and Nancy.</h2>
+        <p class="text-lg leading-relaxed text-muted">
+          {site.name} is a family business, owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
+        </p>
+        <p class="text-lg leading-relaxed text-muted">
+          No call center and no runaround. When you work with us, you work with family, and we treat your spot like our own.
+        </p>
+        <div class="flex flex-wrap gap-3 pt-1">
+          <a href="/about/" class="key px-6 py-3">About us</a>
+          {site.phone && <a href={`tel:${site.phone}`} class="key key-vend px-6 py-3">Call {site.phone}</a>}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How a customer buys, with stick-figure drawings. -->
+  <section class="mx-auto w-[min(100%-2rem,72rem)] pt-14 pb-4" aria-labelledby="how">
+    <div class="flex flex-col items-center gap-2 text-center">
+      <p class="label">How it works</p>
+      <h2 id="how" class="text-[clamp(1.6rem,3.5vw,2.25rem)] text-ink">Tap, grab and go. That's the whole manual.</h2>
+    </div>
+    <ol class="mt-8 grid gap-6 sm:grid-cols-3">
+      {
+        steps.map((s, i) => (
+          <li class="flex flex-col items-center gap-2 text-center">
+            <StepArt step={i as 0 | 1 | 2} />
+            <h3 class="text-lg text-ink">{i + 1}. {s.title}</h3>
+            <p class="max-w-xs text-sm text-muted">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <!-- Call to action. -->
+  <section class="mx-auto w-[min(100%-2rem,72rem)] py-14">
+    <div class="cta">
+      <div class="flex flex-col gap-3">
+        <h2 class="text-[clamp(1.7rem,3.5vw,2.4rem)] text-frost">Got an outlet and a few feet of floor? Let's talk.</h2>
+        <p class="text-lg text-inverse/80">
+          Tell us about your spot and we'll handle the rest.
+          {locations.length > 0 && <> Want to see one first? Ours is at {locations.map((l) => `${l.name}, ${l.city}`).join("; ")}.</>}
+        </p>
+      </div>
+      <div class="flex flex-col items-start gap-3 md:items-end">
+        <div class="flex flex-wrap gap-3">
+          <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+          {site.phone && <a href={`tel:${site.phone}`} class="key key-ghost px-7 py-3.5 text-lg">Call {site.phone}</a>}
+        </div>
+        {site.email && <a href={`mailto:${site.email}`} class="text-inverse/80 underline hover:text-frost">{site.email}</a>}
+      </div>
+    </div>
+  </section>
 </Base>
+
+<style>
+  /* Small section label: navy text after a short lime rule. */
+  .label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+  .label::before {
+    content: "";
+    width: 1.5rem;
+    height: 3px;
+    background: var(--color-lime);
+  }
+  .photo {
+    display: grid;
+    place-items: center;
+    padding: 2rem 0;
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+  }
+  .photo img {
+    width: min(62%, 14rem);
+    height: auto;
+  }
+  /* Pillars: five equal columns on desktop, each standing on a thick lime base line. */
+  .pillars {
+    display: grid;
+    gap: 2.5rem 1.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  }
+  @media (min-width: 1024px) {
+    .pillars {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 6px solid var(--color-ink);
+  }
+  .pillar:nth-child(odd) {
+    border-top-color: var(--color-lime);
+  }
+  .pillar-num {
+    font-weight: 800;
+    font-size: clamp(2.75rem, 5vw, 3.75rem);
+    line-height: 1;
+    color: var(--color-lime-dark);
+  }
+  .pillar-title {
+    font-size: clamp(1.35rem, 2.2vw, 1.6rem);
+    color: var(--color-ink);
+  }
+  .owners {
+    max-width: 26rem;
+    justify-self: center;
+  }
+  .owners img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-control);
+  }
+  .cta {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border-radius: var(--radius-control);
+    border-top: 6px solid var(--color-lime);
+    background: var(--color-cabinet);
+  }
+  @media (min-width: 768px) {
+    .cta {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+  }
+</style>

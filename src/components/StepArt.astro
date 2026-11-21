@@ -1,0 +1,131 @@
+---
+// Stick-figure drawings for "How it works": tap, grab, go.
+interface Props {
+  step: 0 | 1 | 2;
+}
+const { step } = Astro.props;
+---
+
+<svg viewBox="0 0 160 120" class="art" role="img" aria-label={["A person taps a card on the machine's reader", "A person grabs a drink and a snack from the open fridge", "A happy person walks off with their drink and snack"][step]}>
+  <line x1="6" y1="112" x2="154" y2="112" class="ground" />
+  {
+    step === 0 && (
+      <g>
+        <!-- machine -->
+        <rect x="92" y="14" width="52" height="98" rx="4" class="machine" />
+        <rect x="92" y="14" width="52" height="14" rx="3" class="sign" />
+        <rect x="99" y="33" width="38" height="70" rx="2" class="glass" />
+        <line x1="99" y1="51" x2="137" y2="51" class="shelf" />
+        <line x1="99" y1="69" x2="137" y2="69" class="shelf" />
+        <line x1="99" y1="87" x2="137" y2="87" class="shelf" />
+        <rect x="103" y="40" width="6" height="11" rx="1.5" class="item-orange" />
+        <rect x="112" y="40" width="6" height="11" rx="1.5" class="item-lime" />
+        <rect x="121" y="40" width="6" height="11" rx="1.5" class="item-sky" />
+        <rect x="104" y="59" width="12" height="10" rx="2" class="item-sun" />
+        <rect x="120" y="59" width="12" height="10" rx="2" class="item-orange" />
+        <rect x="86" y="54" width="8" height="12" rx="1.5" class="reader" />
+        <!-- tap waves -->
+        <path d="M80 52 a6 6 0 0 1 0 12" class="wave" />
+        <path d="M76 48 a11 11 0 0 1 0 20" class="wave" />
+        <!-- person -->
+        <circle cx="40" cy="34" r="10" class="head" />
+        <path d="M36 37 q4 4 8 0" class="line" />
+        <line x1="40" y1="44" x2="40" y2="80" class="line" />
+        <path d="M40 54 L58 58 L70 58" class="line" />
+        <path d="M40 54 L30 70" class="line" />
+        <rect x="68" y="53" width="11" height="8" rx="1.5" class="card" />
+        <path d="M40 80 L30 110" class="line" />
+        <path d="M40 80 L50 110" class="line" />
+      </g>
+    )
+  }
+  {
+    step === 1 && (
+      <g>
+        <rect x="92" y="14" width="52" height="98" rx="4" class="machine" />
+        <rect x="92" y="14" width="52" height="14" rx="3" class="sign" />
+        <rect x="99" y="33" width="38" height="70" rx="2" class="glass-open" />
+        <line x1="99" y1="51" x2="137" y2="51" class="shelf" />
+        <line x1="99" y1="69" x2="137" y2="69" class="shelf" />
+        <line x1="99" y1="87" x2="137" y2="87" class="shelf" />
+        <rect x="112" y="40" width="6" height="11" rx="1.5" class="item-lime" />
+        <rect x="121" y="40" width="6" height="11" rx="1.5" class="item-sky" />
+        <rect x="120" y="59" width="12" height="10" rx="2" class="item-orange" />
+        <!-- open door swung out -->
+        <path d="M99 33 L80 40 L80 108 L99 103 Z" class="door" />
+        <line x1="84" y1="62" x2="84" y2="80" class="handle" />
+        <!-- person -->
+        <circle cx="42" cy="34" r="10" class="head" />
+        <circle cx="39" cy="33" r="1" class="eye" />
+        <circle cx="45" cy="33" r="1" class="eye" />
+        <path d="M38 37 q4 4 8 0" class="line" />
+        <line x1="42" y1="44" x2="42" y2="80" class="line" />
+        <path d="M42 54 L58 44" class="line" />
+        <path d="M42 54 L60 64" class="line" />
+        <rect x="57" y="32" width="7" height="13" rx="2" class="item-sky" />
+        <path d="M58 60 h12 l-2 12 h-9 Z" class="item-sun" />
+        <path d="M42 80 L32 110" class="line" />
+        <path d="M42 80 L52 110" class="line" />
+      </g>
+    )
+  }
+  {
+    step === 2 && (
+      <g>
+        <!-- small machine left behind -->
+        <rect x="8" y="40" width="34" height="72" rx="3" class="machine" />
+        <rect x="8" y="40" width="34" height="10" rx="2" class="sign" />
+        <rect x="13" y="54" width="24" height="52" rx="2" class="glass" />
+        <!-- motion lines -->
+        <line x1="58" y1="50" x2="72" y2="50" class="motion" />
+        <line x1="54" y1="62" x2="70" y2="62" class="motion" />
+        <line x1="58" y1="74" x2="72" y2="74" class="motion" />
+        <!-- person walking right -->
+        <circle cx="104" cy="32" r="10" class="head" />
+        <path d="M99 34 q5 6 10 0" class="line" />
+        <line x1="103" y1="42" x2="99" y2="78" class="line" />
+        <path d="M102 52 L118 46" class="line" />
+        <path d="M102 52 L88 64" class="line" />
+        <rect x="117" y="35" width="7" height="13" rx="2" class="item-sky" />
+        <path d="M82 62 h10 l-2 10 h-7 Z" class="item-sun" />
+        <path d="M99 78 L114 108" class="line" />
+        <path d="M99 78 L86 108" class="line" />
+        <!-- happy sparkles -->
+        <path d="M128 18 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z" class="spark" />
+        <path d="M84 14 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5 Z" class="spark" />
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .art {
+    width: 100%;
+    max-width: 11rem;
+    height: auto;
+  }
+  .art * {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ground { stroke: var(--color-line); stroke-width: 3; }
+  .line { fill: none; stroke: var(--color-ink); stroke-width: 3.5; }
+  .head { fill: var(--color-frost); stroke: var(--color-ink); stroke-width: 3.5; }
+  .eye { fill: var(--color-ink); }
+  .machine { fill: var(--color-machine); }
+  .sign { fill: var(--color-machine-2); }
+  .glass { fill: var(--color-glass); }
+  .glass-open { fill: var(--color-frost); }
+  .door { fill: var(--color-sky-soft); stroke: var(--color-machine); stroke-width: 3; }
+  .handle { stroke: var(--color-chrome-dark); stroke-width: 3; }
+  .shelf { stroke: var(--color-chrome-dark); stroke-width: 1.5; }
+  .reader { fill: var(--color-sky); stroke: var(--color-machine); stroke-width: 1.5; }
+  .card { fill: var(--color-orange); }
+  .wave { fill: none; stroke: var(--color-lime); stroke-width: 2.5; }
+  .motion { stroke: var(--color-lime); stroke-width: 3; }
+  .spark { fill: var(--color-sun); }
+  .item-orange { fill: var(--color-orange); }
+  .item-lime { fill: var(--color-lime); }
+  .item-sky { fill: var(--color-sky); }
+  .item-sun { fill: var(--color-sun); }
+</style>

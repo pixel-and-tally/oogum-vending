@@ -10,108 +10,54 @@ import type { Availability } from "./lib/schedule";
 export const site = {
   name: "Oogum Vending",
   owners: "Stephen and Nancy Turner",
-  // TODO: tagline from the owners. This is a working line.
-  tagline: "Cold, stocked and smart. Every time you walk up.",
-  url: "https://oogumvending.com", // TODO: confirm the domain
+  // From the owners' flier.
+  tagline: "Convenience, Reimagined.",
+  url: "https://oogumvending.com",
   description:
-    "Oogum Vending runs refrigerated smart vending machines in Belmont, NC. The machines track their own stock, so they get restocked before anything runs out.",
+    "Family-owned Oogum Vending places smart market machines in Charlotte, NC and surrounding areas. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
   hometown: "Belmont, NC",
-  serviceArea: "North Carolina",
+  serviceArea: "Charlotte, NC and surrounding areas",
+  // Towns Blake listed (2026-11-20). Shown on the home and About pages.
+  towns: ["Charlotte", "Gastonia", "Belmont", "Mount Holly", "Cramerton"],
 
-  // Contact. Empty values are hidden on the site. TODO: all three.
-  email: "",
-  phone: "",
+  // Contact, from the owners' flier. Empty values are hidden on the site.
+  email: "Connect@OogumVending.com",
+  phone: "704-559-9650",
   // Machine platform, e.g. "Nayax" or the cooler maker. Shown on the hub only.
   machinePlatform: "",
   // Path under public/. Their current logo; swap the file if they pick a new one. Empty shows a text sign.
   logo: "/oogum-logo.png",
 } as const;
 
+/** Short promises from the flier, shown on the navy strip. */
+export const promises = ["Improve satisfaction", "Hassle-free service", "No cost to you"];
+
 /** Where machines are today. Real locations only. */
 export const locations: { name: string; city: string; note?: string }[] = [
   { name: "Firestone", city: "Belmont, NC" },
 ];
 
-/**
- * The slots in the machine window. Each one is a section of the home page.
- * Codes follow a real machine: row letter, then column number.
- */
-export type Slot = {
-  code: string;
-  label: string;
-  /** Short line on the slot's price tag. */
-  tag: string;
+/** The flier's "Why choose Oogum Vending?" points: the five cornerstones on the home page. */
+export type Cornerstone = {
   title: string;
-  body: string[];
-  link?: { href: string; label: string };
-  tone: "orange" | "lime" | "sky" | "sun";
+  body: string;
+  icon: "tap" | "basket" | "wrench" | "support" | "free";
+  tone: "orange" | "lime" | "sky" | "sun" | "ink";
 };
 
-export const slots: Slot[] = [
-  {
-    code: "A1",
-    label: "Always stocked",
-    tag: "No empty coils",
-    title: "It tells us before it runs low",
-    body: [
-      "Our machines count what's inside them. When something starts to run low, we get a notice and restock it.",
-      "So the thing you came for is there when you walk up. Not sold out since Tuesday.",
-    ],
-    tone: "lime",
-  },
-  {
-    code: "A2",
-    label: "Kept cold",
-    tag: "Fridge, not shelf",
-    title: "Refrigerated, start to finish",
-    body: [
-      "These are fridges, not snack spirals. Drinks are cold and fresh food stays fresh.",
-      // TODO: what they actually stock (drinks, snacks, meals) once the owners confirm.
-    ],
-    tone: "sky",
-  },
-  {
-    code: "A3",
-    label: "How it works",
-    tag: "Tap, open, grab",
-    title: "Tap, open, grab, go",
-    body: [
-      // TODO: confirm the exact steps for their machine model.
-      "Tap your card or phone to unlock the door. Take what you want. The machine sees what you took and charges only for that.",
-    ],
-    tone: "sun",
-  },
-  {
-    code: "B1",
-    label: "Host a machine",
-    tag: "Free for hosts",
-    title: "Want one at your shop?",
-    body: [
-      "We bring the machine, stock it, clean it and keep it running. You give it a plug and a spot your customers walk past.",
-      "We're adding machines at Firestone stores across North Carolina, and we're open to other busy waiting rooms too.",
-    ],
-    link: { href: "/host/", label: "Request a machine" },
-    tone: "orange",
-  },
-  {
-    code: "B2",
-    label: "Where we are",
-    tag: "Belmont, NC",
-    title: "Where to find us",
-    body: [],
-    tone: "sky",
-  },
-  {
-    code: "B3",
-    label: "Who we are",
-    tag: "Local owners",
-    title: "Stephen and Nancy",
-    body: [
-      "Oogum Vending is owned and run by Stephen and Nancy Turner in Belmont. When you call, you get one of us.",
-      // TODO: a line or two in their own words.
-    ],
-    tone: "lime",
-  },
+export const cornerstones: Cornerstone[] = [
+  { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", icon: "tap", tone: "sky" },
+  { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", icon: "basket", tone: "lime" },
+  { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", icon: "wrench", tone: "sun" },
+  { title: "Reliable support", body: "Local, family service you can count on. Proudly serving Charlotte and the surrounding area.", icon: "support", tone: "ink" },
+  { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", icon: "free", tone: "orange" },
+];
+
+/** How a customer buys, shown as three steps. */
+export const steps = [
+  { title: "Tap", body: "Swipe or tap a card or phone on the reader." },
+  { title: "Grab", body: "The door unlocks. Take what you want." },
+  { title: "Go", body: "Close the door and checkout happens on its own." },
 ];
 
 // When a host can request a call with the owners (Eastern). TODO: their real hours.

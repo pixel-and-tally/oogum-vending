@@ -3,7 +3,7 @@
 import { buildCallIcs, formatDate, formatTime, isBookable, type Availability } from "./schedule";
 import type { RequestStage } from "../site";
 
-export const hostFields = ["name", "email", "phone", "business", "address", "role", "traffic"] as const;
+export const hostFields = ["name", "email", "phone", "business", "address", "traffic"] as const;
 export const optionalHostFields = ["details"] as const;
 export type HostField = (typeof hostFields)[number] | "callTime";
 export type HostMessage = Record<(typeof hostFields)[number] | (typeof optionalHostFields)[number] | "callDate" | "callTime", string>;
@@ -55,10 +55,10 @@ export function hostEmailText(m: HostMessage): string {
   return [
     `New host request from ${m.business}`,
     "",
-    `Name: ${m.name} (${m.role})`,
+    `Name: ${m.name}`,
     `Email: ${m.email}`,
     `Phone: ${m.phone}`,
-    `Store address: ${m.address}`,
+    `Address: ${m.address}`,
     `Customers a day: ${m.traffic}`,
     `Call: ${callLabel(m) || "None picked, reach out to set one up"}`,
     ...(m.details ? ["", m.details] : []),

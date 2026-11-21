@@ -1,0 +1,77 @@
+---
+import Base from "../../layouts/Base.astro";
+import { locations, site } from "../../site";
+
+// Facts only, from the owners and their flier. TODO: a line or two in Stephen and Nancy's own words, and a photo of them if they want one.
+const how = [
+  "Swipe or tap your card or phone.",
+  "The door unlocks. Grab what you want.",
+  "Close the door and checkout happens on its own.",
+];
+---
+
+<Base title="About us" description={`${site.name} is owned and run by ${site.owners} in ${site.hometown}. Smart vending machines, stocked and serviced at no cost to the host.`}>
+  <section class="mx-auto grid w-[min(100%-2rem,72rem)] gap-10 pt-10 pb-16 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+    <div class="flex flex-col items-start gap-5">
+      <p class="font-semibold text-lime-dark">About us. Family owned and operated.</p>
+      <h1 class="about-title text-ink">A family business from {site.hometown}.</h1>
+      <p class="max-w-xl text-lg text-muted">
+        {site.name} is a family business, owned and run by {site.owners}. We put smart vending machines in local businesses, then stock, monitor and maintain them ourselves. It costs the host nothing.
+      </p>
+      <p class="max-w-xl text-lg text-muted">
+        Our machines are glass-door smart fridges with more options: cold drinks, popular snacks and healthier picks, chosen for each spot. When you call, you get one of us.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href="/host/" class="key key-vend px-6 py-3 text-lg">Host a machine</a>
+        {site.phone && <a href={`tel:${site.phone}`} class="key px-6 py-3 text-lg">Call {site.phone}</a>}
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-6">
+      <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" class="aspect-[4/3] w-full rounded-card object-cover object-[50%_30%]" />
+      <div class="flex flex-col gap-3 rounded-card bg-cabinet p-6">
+        <h2 class="text-xl text-lime">How it works</h2>
+        <ol class="flex flex-col gap-2 text-inverse">
+          {how.map((h, i) => (
+            <li class="flex gap-3">
+              <span class="font-bold text-lime">{i + 1}.</span>
+              <span>{h}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+      {
+        locations.length > 0 && (
+          <div class="rounded-card border-2 border-line p-6">
+            <h2 class="text-xl text-ink">Find our machine</h2>
+            <ul class="mt-2 flex flex-col gap-1 text-muted">
+              {locations.map((l) => (
+                <li>
+                  {l.name}, {l.city}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      <div class="rounded-card border-2 border-line p-6">
+        <h2 class="text-xl text-ink">Get in touch</h2>
+        <ul class="mt-2 flex flex-col gap-1">
+          {site.phone && <li><a class="underline" href={`tel:${site.phone}`}>{site.phone}</a></li>}
+          {site.email && <li><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></li>}
+          <li class="text-muted">Serving {site.serviceArea}: {site.towns.join(", ")} and nearby.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about-title {
+    font-family: var(--font-body);
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: -0.02em;
+    font-size: clamp(2rem, 4.5vw, 3.2rem);
+  }
+</style>

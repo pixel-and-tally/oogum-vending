@@ -1,13 +1,15 @@
 /*
- * THE THEME FILE. Oogum Vending: the whole site is a refrigerated vending machine.
- * A dark cabinet, a frosted glass window, orange buttons and a green LED readout.
+ * THE THEME FILE. Oogum Vending, matched to the owners' flier: white page, navy,
+ * lime and orange, bold condensed caps. The home page centers on a black smart fridge.
  * Components only use these tokens, never raw hex values.
  */
-@import url("https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=VT323&family=Outfit:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=VT323&family=Outfit:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
   /* Cabinet */
+  --color-machine: #16181d; /* the real machine is black */
+  --color-machine-2: #2b2f37;
   --color-cabinet: #01204c; /* machine body */
   --color-cabinet-2: #0d3170; /* panels on the body */
   --color-chrome: #c9d4dc; /* trim and handles */
@@ -19,7 +21,9 @@
   --color-cold: #7fd3f5; /* fridge glow */
 
   /* Page */
-  --color-floor: #00122c; /* page background around the machine */
+  --color-floor: #00122c; /* deep navy for grilles and shadows */
+  --color-page: #ffffff; /* page background */
+  --color-tint: #f6faf0; /* faint lime wash behind sections */
   --color-paper: #f4f8fa; /* plain content areas, hub */
   --color-ink: #01204c;
   --color-muted: #4f6573;
@@ -30,6 +34,12 @@
   --color-orange: #f47a1f; /* buttons, VEND: Oogum orange */
   --color-orange-dark: #c35a0c;
   --color-lime: #8ec008; /* Oogum lime */
+  --color-lime-dark: #4f7a00; /* lime text on white */
+  --color-lime-soft: #eef7d9;
+  --color-orange-soft: #fdeee2;
+  --color-sky-soft: #e5f5fc;
+  --color-sun-soft: #fff6dc;
+  --color-ink-soft: #e8edf5;
   --color-sky: #7fd3f5;
   --color-sun: #ffc93c;
 
@@ -42,20 +52,19 @@
   --color-success: #16804a;
 
   /* Type */
-  --font-sign: "Bungee Shade", "Bungee", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bungee", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-led: "VT323", ui-monospace, monospace;
 
   /* Shape */
   --radius-cabinet: 2rem;
   --radius-card: 0.9rem;
-  --radius-control: 0.6rem;
+  --radius-control: 0.5rem;
 }
 
 @layer base {
   html {
-    background-color: var(--color-floor);
+    background-color: var(--color-page);
     color: var(--color-ink);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -65,9 +74,10 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    font-weight: 400;
-    line-height: 1;
+    font-family: var(--font-body);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 
@@ -88,52 +98,19 @@
 }
 
 @layer components {
-  /* The machine body: brushed dark metal with a chrome edge. */
+  /* Navy panel for key facts. */
   .cabinet {
-    background:
-      linear-gradient(90deg, rgb(255 255 255 / 0.04), transparent 12%, transparent 88%, rgb(0 0 0 / 0.25)),
-      var(--color-cabinet);
-    border: 6px solid var(--color-chrome-dark);
-    border-radius: var(--radius-cabinet);
-    box-shadow:
-      inset 0 0 0 3px var(--color-cabinet-2),
-      0 30px 60px -20px rgb(0 0 0 / 0.7);
+    background: var(--color-cabinet);
+    border-radius: var(--radius-card);
+    box-shadow: 0 20px 40px -24px rgb(1 32 76 / 0.6);
   }
 
-  /* The fridge window: cold glass with a soft glow and a glare streak. */
-  .glass {
-    position: relative;
-    background:
-      radial-gradient(120% 80% at 50% 0%, var(--color-frost), var(--color-glass) 60%, var(--color-cold));
-    border: 4px solid var(--color-chrome);
-    border-radius: 1.1rem;
-    box-shadow:
-      inset 0 0 40px rgb(127 211 245 / 0.55),
-      0 0 30px rgb(127 211 245 / 0.25);
-    overflow: hidden;
-  }
-  .glass::after {
-    content: "";
-    position: absolute;
-    inset: -20% auto -20% 8%;
-    width: 18%;
-    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.3), transparent);
-    transform: skewX(-12deg);
-    pointer-events: none;
-  }
-
-  /* A shelf the slots sit on: chrome lip under each row. */
-  .shelf {
-    border-bottom: 6px solid var(--color-chrome);
-    box-shadow: 0 6px 0 var(--color-chrome-dark);
-  }
-
-  /* The coil drawn behind each slot. */
-  .coil {
-    height: 14px;
-    background: repeating-linear-gradient(90deg, var(--color-chrome-dark) 0 3px, transparent 3px 11px);
-    border-radius: 999px;
-    opacity: 0.8;
+  /* White card with a hairline border and a soft lift. */
+  .card {
+    background: var(--color-frost);
+    border: 1px solid var(--color-line);
+    border-radius: 1.25rem;
+    box-shadow: 0 1px 2px rgb(1 32 76 / 0.04), 0 12px 32px -18px rgb(1 32 76 / 0.25);
   }
 
   /* Green LED readout. */
@@ -147,62 +124,42 @@
     letter-spacing: 0.08em;
   }
 
-  /* Keypad and VEND buttons: chunky, pressable. */
+  /* Site buttons: flat and simple. .key is the outlined one, .key-vend the solid lime one. */
   .key {
-    font-family: var(--font-display);
-    background: linear-gradient(var(--color-chrome), var(--color-chrome-dark));
-    color: var(--color-ink);
-    border-radius: var(--radius-control);
-    box-shadow: 0 4px 0 var(--color-cabinet-2);
-    transition: transform 80ms, box-shadow 80ms;
-  }
-  .key:active,
-  .key[aria-pressed="true"] {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 var(--color-cabinet-2);
-  }
-  .key-vend {
-    background: linear-gradient(var(--color-orange), var(--color-orange-dark));
-    color: var(--color-frost);
-  }
-
-  /* The pickup tray at the bottom of the machine. */
-  .tray {
-    background: linear-gradient(var(--color-led-bg), var(--color-cabinet-2));
-    border: 4px solid var(--color-chrome-dark);
-    border-radius: 0.9rem;
-    box-shadow: inset 0 14px 20px rgb(0 0 0 / 0.6);
-  }
-
-  /* Price-tag look for slot labels. */
-  .tag {
-    font-family: var(--font-led);
-    font-size: 1.15rem;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-weight: 700;
     background: var(--color-frost);
     color: var(--color-ink);
     border: 2px solid var(--color-ink);
-    border-radius: 0.3rem;
+    border-radius: var(--radius-control);
+    transition: background-color 120ms, color 120ms;
+  }
+  .key:hover {
+    background: var(--color-ink);
+    color: var(--color-frost);
+  }
+  .key-vend {
+    background: var(--color-lime);
+    border-color: var(--color-lime);
+    color: var(--color-ink);
+  }
+  .key-ghost {
+    background: transparent;
+    border-color: var(--color-frost);
+    color: var(--color-frost);
+  }
+  .key-ghost:hover {
+    background: var(--color-frost);
+    color: var(--color-ink);
+  }
+  .key-vend:hover {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-frost);
   }
 
-  /* The item dropping into the tray. */
-  .drop {
-    animation: drop 520ms cubic-bezier(0.3, 0.6, 0.4, 1.4);
-  }
-  @keyframes drop {
-    from {
-      transform: translateY(-140%) rotate(-6deg);
-      opacity: 0;
-    }
-    to {
-      transform: none;
-      opacity: 1;
-    }
-  }
 
-  @media (prefers-reduced-motion: reduce) {
-    .drop {
-      animation: none;
-    }
-  }
 }

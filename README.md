@@ -3,7 +3,7 @@
 Website and owner hub for Oogum Vending (Stephen and Nancy Turner, Belmont, NC).
 Built by Pixel & Tally.
 
-- **Public site**: the home page is a vending machine. Each slot in the window is a section; press a code on the keypad (or tap a slot) and it drops into the pickup tray. Without JavaScript every section shows in the tray.
+- **Public site**: the home page opens with the tagline and a photo of their machine (`public/machine-photo.jpg`, cropped from their flier; swap in real photos when the owners send them), then a big glass-door smart fridge whose shelves hold the main points as cards. Edit the cards in `cards` in `src/site.ts`.
 - **Host a machine** (`/host/`): request form for store managers, with an optional call time. Each request is saved for the hub and emailed to the owners.
 - **Owner hub** (`/hub/`): login for the owners.
   - Prices: log bulk prices from Costco, Sam's Club, Walmart, Target, Amazon; it shows the cheapest store per unit.
