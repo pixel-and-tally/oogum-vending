@@ -9,4 +9,4 @@ if (!user || !password) {
 const salt = randomBytes(16).toString("hex");
 const hash = scryptSync(password, salt, 32).toString("hex");
 console.log(`${user.toLowerCase()}:scrypt$${salt}$${hash}`);
-console.log("\nJoin entries with commas and paste them into HUB_USERS on Netlify.");
+console.log("\nJoin entries with commas and paste them into HUB_USERS in Cloudflare.");

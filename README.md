@@ -25,7 +25,7 @@ npm run dev        # http://localhost:4321
 npm run verify     # type check, tests, build. Must pass before every commit.
 ```
 
-Locally the hub stores data in `.data/` (git ignores it). On Netlify it uses Netlify Blobs, free and with nothing to set up.
+Locally the hub stores data in `.data/` (git ignores it). On Cloudflare it uses Workers KV (the `HUB_STORE` binding), free; the first deploy creates it.
 
 To sign in locally:
 
@@ -34,11 +34,11 @@ npm run hub:hash -- nancy 'some password'   # prints nancy:scrypt$...
 HUB_USERS='nancy:scrypt$...' HUB_SECRET='any-long-random-string' npm run dev
 ```
 
-## Netlify setup
+## Cloudflare setup
 
-Free plan. Build command and publish folder come from `netlify.toml`.
+Free plan. Workers & Pages > Create > Import a repository > `pixel-and-tally/oogum-vending`. Build command `npm run build`, deploy command `npx wrangler deploy`; `wrangler.jsonc` holds the rest.
 
-Environment variables:
+Variables (Worker > Settings > Variables and Secrets, type Secret):
 
 | Name | What |
 | --- | --- |

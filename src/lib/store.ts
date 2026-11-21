@@ -1,5 +1,5 @@
-// Where the hub keeps its records. On Netlify this is Netlify Blobs (free,
-// no database to run). Anywhere else (local dev, tests) it is a JSON file
+// Where the hub keeps its records. On Cloudflare this is Workers KV (the
+// HUB_STORE binding in wrangler.jsonc: free, no database to run). Anywhere else (local dev, tests) it is a JSON file
 // under .data/, which git ignores. Each collection is one small JSON list:
 // fine for two owners and a few hundred rows.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -38,24 +38,33 @@ function fileStore(dir: string): Store {
   };
 }
 
-async function blobStore(): Promise<Store> {
-  const { getStore } = await import("@netlify/blobs");
-  const store = getStore({ name: "oogum-hub", consistency: "strong" });
+interface KV {
+  get(key: string, type: "json"): Promise<unknown>;
+  put(key: string, value: string): Promise<void>;
+}
+
+async function kvStore(): Promise<Store> {
+  // `cloudflare:workers` only exists inside the Worker, so it is imported lazily.
+  const { env } = await import("cloudflare:workers");
+  const kv = env.HUB_STORE as KV | undefined;
+  if (!kv) throw new Error("Store: the HUB_STORE KV binding is missing (see wrangler.jsonc)");
   return {
     async read<T>(key: string) {
-      return ((await store.get(key, { type: "json" })) as T[] | null) ?? [];
+      return ((await kv.get(key, "json")) as T[] | null) ?? [];
     },
     async write<T>(key: string, rows: T[]) {
-      await store.setJSON(key, rows);
+      await kv.put(key, JSON.stringify(rows));
     },
   };
 }
 
+/** True inside a Cloudflare Worker. */
+const onCloudflare = () => typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers";
+
 let cached: Promise<Store> | undefined;
 
 export function getStore(): Promise<Store> {
-  // NETLIFY is set in Netlify builds and functions.
-  cached ??= process.env.NETLIFY ? blobStore() : Promise.resolve(fileStore(join(process.cwd(), ".data")));
+  cached ??= onCloudflare() ? kvStore() : Promise.resolve(fileStore(join(process.cwd(), ".data")));
   return cached;
 }
 

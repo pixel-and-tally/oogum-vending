@@ -1,5 +1,5 @@
 // Owner hub login. No accounts service: the owners' logins live in two
-// Netlify environment variables.
+// Cloudflare environment variables (Worker > Settings > Variables and Secrets).
 //   HUB_USERS  = "stephen:scrypt$<salt>$<hash>,nancy:scrypt$<salt>$<hash>"
 //                (make each with `npm run hub:hash -- <password>`)
 //   HUB_SECRET = any long random string; signs the login cookie.
