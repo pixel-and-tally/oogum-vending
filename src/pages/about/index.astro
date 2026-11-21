@@ -29,12 +29,12 @@ const how = [
 
     <div class="flex flex-col gap-6">
       <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" class="aspect-[4/3] w-full rounded-card object-cover object-[50%_30%]" />
-      <div class="cabinet flex flex-col gap-3 p-6">
+      <div class="flex flex-col gap-3 rounded-card bg-cabinet p-6">
         <h2 class="text-xl text-lime">How it works</h2>
         <ol class="flex flex-col gap-2 text-inverse">
           {how.map((h, i) => (
             <li class="flex gap-3">
-              <span class="font-led text-2xl leading-none text-lime">{i + 1}</span>
+              <span class="font-bold text-lime">{i + 1}.</span>
               <span>{h}</span>
             </li>
           ))}
