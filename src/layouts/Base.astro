@@ -1,4 +1,5 @@
 ---
+import SiteCredit from "../components/SiteCredit.astro";
 import "../theme.css";
 import { site } from "../site";
 
@@ -56,6 +57,7 @@ const year = new Date().getFullYear();
         <a href="/host/" class="underline">Host a machine</a>
         <a href="/hub/" class="underline">Owner login</a>
         <p class="text-chrome-dark">© {year} {site.name}</p>
+        <SiteCredit class="text-chrome-dark" />
       </div>
     </footer>
   </body>
