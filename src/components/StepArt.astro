@@ -29,7 +29,9 @@ const { step } = Astro.props;
         <path d="M76 48 a11 11 0 0 1 0 20" class="wave" />
         <!-- person -->
         <circle cx="40" cy="34" r="10" class="head" />
-        <path d="M36 37 q4 4 8 0" class="line" />
+        <circle cx="37" cy="32" r="1.3" class="eye" />
+        <circle cx="43" cy="32" r="1.3" class="eye" />
+        <path d="M36.5 36.5 q3.5 3.5 7 0" class="smile" />
         <line x1="40" y1="44" x2="40" y2="80" class="line" />
         <path d="M40 54 L58 58 L70 58" class="line" />
         <path d="M40 54 L30 70" class="line" />
@@ -56,9 +58,9 @@ const { step } = Astro.props;
         <line x1="84" y1="62" x2="84" y2="80" class="handle" />
         <!-- person -->
         <circle cx="42" cy="34" r="10" class="head" />
-        <circle cx="39" cy="33" r="1" class="eye" />
-        <circle cx="45" cy="33" r="1" class="eye" />
-        <path d="M38 37 q4 4 8 0" class="line" />
+        <circle cx="39" cy="32" r="1.3" class="eye" />
+        <circle cx="45" cy="32" r="1.3" class="eye" />
+        <path d="M38.5 36.5 q3.5 3.5 7 0" class="smile" />
         <line x1="42" y1="44" x2="42" y2="80" class="line" />
         <path d="M42 54 L58 44" class="line" />
         <path d="M42 54 L60 64" class="line" />
@@ -82,7 +84,9 @@ const { step } = Astro.props;
         <line x1="58" y1="74" x2="72" y2="74" class="motion" />
         <!-- person walking right -->
         <circle cx="104" cy="32" r="10" class="head" />
-        <path d="M99 34 q5 6 10 0" class="line" />
+        <circle cx="101" cy="30" r="1.3" class="eye" />
+        <circle cx="107" cy="30" r="1.3" class="eye" />
+        <path d="M100 34 q4 4 8 0" class="smile" />
         <line x1="103" y1="42" x2="99" y2="78" class="line" />
         <path d="M102 52 L118 46" class="line" />
         <path d="M102 52 L88 64" class="line" />
@@ -112,6 +116,7 @@ const { step } = Astro.props;
   .line { fill: none; stroke: var(--color-ink); stroke-width: 3.5; }
   .head { fill: var(--color-frost); stroke: var(--color-ink); stroke-width: 3.5; }
   .eye { fill: var(--color-ink); }
+  .smile { fill: none; stroke: var(--color-ink); stroke-width: 1.6; }
   .machine { fill: var(--color-machine); }
   .sign { fill: var(--color-machine-2); }
   .glass { fill: var(--color-glass); }
