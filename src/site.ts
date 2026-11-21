@@ -16,6 +16,10 @@ export const site = {
   description:
     "Family-owned Oogum Vending places refrigerated smart AI vending machines in Charlotte, NC and surrounding areas. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
   hometown: "Belmont, NC",
+  // From the flier. Used for local search.
+  county: "Gaston County",
+  // Big headline for search results and link previews.
+  seoTitle: "Smart AI Vending in Belmont, Gastonia and Charlotte, NC",
   serviceArea: "Charlotte, NC and surrounding areas",
   // Towns Blake listed (2026-11-20). Shown on the home and About pages.
   towns: ["Charlotte", "Gastonia", "Belmont", "Mount Holly", "Cramerton"],
@@ -74,6 +78,53 @@ export const cornerstones: Cornerstone[] = [
   { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", icon: "wrench", tone: "sun" },
   { title: "Reliable support", body: "Local, family service you can count on. Proudly serving Charlotte and the surrounding area.", icon: "support", tone: "ink" },
   { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", icon: "free", tone: "orange" },
+];
+
+/** What happens after a business asks for a machine. Shown on the host page. */
+export const hostSteps = [
+  { title: "Tell us about your spot", body: "Send the form or call. It takes two minutes and there's no commitment." },
+  { title: "We come see it", body: "Stephen or Nancy visits, looks at the space and the outlet, and talks through what your customers like." },
+  { title: "We bring the machine", body: "We set it up, stock it and look after it from then on. If your spot isn't a good fit, we'll tell you straight." },
+];
+
+/**
+ * Questions hosts ask. Answers use only facts from the owners and their flier.
+ * TODO (Stephen and Nancy): add contract length, commission or revenue share,
+ * and how soon a machine can go in, once they decide. Don't guess these.
+ */
+export const faqs: { q: string; a: string }[] = [
+  {
+    q: "Is it really free?",
+    a: "Yes. We bring the machine, own it, stock it, clean it and fix it. You don't buy, lease or pay anything. You give it a standard outlet and a spot people walk past.",
+  },
+  {
+    q: "How much room does it need?",
+    a: "About the floor space of a home refrigerator, near a standard outlet. We'll look at the spot with you before anything moves in.",
+  },
+  {
+    q: "How do customers pay?",
+    a: "They tap or swipe a card or phone, the door unlocks, they grab what they want and checkout happens on its own when they close the door. It's cashless, so your staff never handles money.",
+  },
+  {
+    q: "What goes in it?",
+    a: "Cold drinks, popular snacks and healthier picks, chosen for the people at your spot. Tell us what your customers ask for and we'll stock it.",
+  },
+  {
+    q: "Who keeps it full?",
+    a: "We do. The machine keeps track of its own stock and alerts us when something runs low, so we restock before it's empty.",
+  },
+  {
+    q: "What if something goes wrong?",
+    a: "Call or text us. You'll get Stephen or Nancy, not a call center, and we'll take care of it.",
+  },
+  {
+    q: "What kind of places is it good for?",
+    a: "Anywhere people wait or work: shop waiting rooms, offices, break rooms, gyms and lobbies. Our first machine is in the waiting room at Firestone in Belmont.",
+  },
+  {
+    q: "Where do you serve?",
+    a: "Charlotte and the towns around it, including Gastonia, Belmont, Mount Holly and Cramerton. We live in Belmont, so Gaston County is right down the road for us.",
+  },
 ];
 
 /** How a customer buys, shown as three steps. */

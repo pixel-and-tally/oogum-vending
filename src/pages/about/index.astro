@@ -6,7 +6,7 @@ import { family, locations, site } from "../../site";
 const bios = family.owners.filter((o) => o.bio);
 ---
 
-<Base title="About us" description={`${site.name} is a family-owned business that delivers personalized attention. Owned and run by ${site.owners} in ${site.hometown}. Refrigerated smart AI vending machines, stocked and serviced at no cost to the host.`}>
+<Base title="About us, a family business in Belmont, NC" description={`${site.name} is a family-owned business that delivers personalized attention. Owned and run by ${site.owners} in ${site.hometown}. Refrigerated smart AI vending machines, stocked and serviced at no cost to the host.`}>
   <!-- Meet the family. -->
   <section class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-10 pb-16 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-14">
     <div class="flex flex-col items-start gap-5">
@@ -97,6 +97,14 @@ const bios = family.owners.filter((o) => o.bio);
         </ul>
       </div>
     </div>
+  </section>
+
+  <!-- A short note from the owners. -->
+  <section class="mx-auto w-[min(100%-2rem,48rem)] pb-16 text-center">
+    <p class="text-[clamp(1.4rem,3vw,1.9rem)] font-bold leading-snug text-ink">
+      "Thanks for looking us up. If you've got a spot in mind, give us a call. One of us will pick up, and we'd love to meet you."
+    </p>
+    <p class="mt-4 text-lg font-semibold text-lime-dark">Stephen and Nancy</p>
   </section>
 
   <!-- Closing ask. -->

@@ -1,11 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import StepArt from "../components/StepArt.astro";
+import Faq from "../components/Faq.astro";
 import { cornerstones, family, locations, site, steps } from "../site";
 
 ---
 
-<Base>
+<Base faq>
   <!-- Hero: short pitch on the left, their machine on the right. Flat and plain on purpose. -->
   <section class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-6 pb-14 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
     <div class="flex flex-col items-start gap-6">
@@ -27,7 +28,7 @@ import { cornerstones, family, locations, site, steps } from "../site";
   <!-- Navy break: where we serve. -->
   <div class="bg-cabinet py-4 text-inverse">
     <p class="mx-auto w-[min(100%-2rem,72rem)] text-center font-semibold sm:text-lg">
-      <span class="text-lime">Proudly serving</span> {site.towns.join(", ")} and the towns in between.
+      <span class="text-lime">Your neighbors in {site.county}.</span> Proudly serving {site.towns.join(", ")} and the towns in between.
     </p>
   </div>
 
@@ -95,6 +96,8 @@ import { cornerstones, family, locations, site, steps } from "../site";
       }
     </ol>
   </section>
+
+  <Faq />
 
   <!-- Call to action. -->
   <section class="mx-auto w-[min(100%-2rem,72rem)] py-14">
