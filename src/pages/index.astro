@@ -1,21 +1,22 @@
 ---
 import Base from "../layouts/Base.astro";
 import StepArt from "../components/StepArt.astro";
-import { cornerstones, locations, site, steps } from "../site";
+import Faq from "../components/Faq.astro";
+import { cornerstones, family, locations, site, steps } from "../site";
 
 ---
 
-<Base>
+<Base faq>
   <!-- Hero: short pitch on the left, their machine on the right. Flat and plain on purpose. -->
   <section class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-6 pb-14 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
     <div class="flex flex-col items-start gap-6">
       <p class="label">Family owned in {site.hometown}</p>
-      <h1 class="text-[clamp(2.3rem,5vw,3.75rem)] text-ink">A vending machine with more options.</h1>
+      <h1 class="text-[clamp(2.3rem,5vw,3.75rem)] text-ink">A vending machine with <span class="mark">more options</span>.</h1>
       <p class="max-w-xl text-xl leading-relaxed text-muted">
-        Upgrade your store with a smart fridge full of cold drinks, snacks and healthier picks. Your customers tap, grab and go. We stock it, fix it and keep it full, and it costs you nothing. Honestly, the hardest part is picking where it goes.
+        Upgrade your store with a refrigerated smart AI machine full of cold drinks, snacks and healthier picks. Your customers tap, grab and go. We stock it, fix it and keep it full, and it costs you nothing. Honestly, the hardest part is picking where it goes.
       </p>
       <div class="flex flex-wrap gap-3">
-        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
         {site.phone && <a href={`tel:${site.phone}`} class="key px-7 py-3.5 text-lg">Call {site.phone}</a>}
       </div>
     </div>
@@ -27,7 +28,7 @@ import { cornerstones, locations, site, steps } from "../site";
   <!-- Navy break: where we serve. -->
   <div class="bg-cabinet py-4 text-inverse">
     <p class="mx-auto w-[min(100%-2rem,72rem)] text-center font-semibold sm:text-lg">
-      <span class="text-lime">Proudly serving</span> {site.towns.join(", ")} and the towns in between.
+      <span class="text-lime">Your neighbors in {site.county}.</span> Proudly serving {site.towns.join(", ")} and the towns in between.
     </p>
   </div>
 
@@ -50,27 +51,27 @@ import { cornerstones, locations, site, steps } from "../site";
       }
     </ol>
     <div class="mt-12 flex justify-center">
-      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
     </div>
   </section>
 
-  <!-- Family owned: Stephen and Nancy. -->
-  <section class="border-y border-line bg-paper py-16" aria-labelledby="family">
+  <!-- About us: family owned, personalized attention. -->
+  <section class="bg-paper py-16" aria-labelledby="family">
     <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16">
       <figure class="owners">
         <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" loading="lazy" />
       </figure>
       <div class="flex flex-col items-start gap-5">
-        <p class="label">Family owned and operated</p>
-        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Meet Stephen and Nancy.</h2>
+        <p class="label">About us</p>
+        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">{family.promise}</h2>
         <p class="text-lg leading-relaxed text-muted">
-          {site.name} is a family business, owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
+          {site.name} is owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
         </p>
         <p class="text-lg leading-relaxed text-muted">
-          No call center and no runaround. When you work with us, you work with family, and we treat your spot like our own.
+          You're not an account number to us. You get a menu picked for your spot, a machine that tells us when it's running low, and a family that shows up when you call.
         </p>
         <div class="flex flex-wrap gap-3 pt-1">
-          <a href="/about/" class="key px-6 py-3">About us</a>
+          <a href="/about/" class="key px-6 py-3">Meet the family</a>
           {site.phone && <a href={`tel:${site.phone}`} class="key key-vend px-6 py-3">Call {site.phone}</a>}
         </div>
       </div>
@@ -96,6 +97,8 @@ import { cornerstones, locations, site, steps } from "../site";
     </ol>
   </section>
 
+  <Faq />
+
   <!-- Call to action. -->
   <section class="mx-auto w-[min(100%-2rem,72rem)] py-14">
     <div class="cta">
@@ -106,12 +109,10 @@ import { cornerstones, locations, site, steps } from "../site";
           {locations.length > 0 && <> Want to see one first? Ours is at {locations.map((l) => `${l.name}, ${l.city}`).join("; ")}.</>}
         </p>
       </div>
-      <div class="flex flex-col items-start gap-3 md:items-end">
-        <div class="flex flex-wrap gap-3">
-          <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
-          {site.phone && <a href={`tel:${site.phone}`} class="key key-ghost px-7 py-3.5 text-lg">Call {site.phone}</a>}
-        </div>
-        {site.email && <a href={`mailto:${site.email}`} class="text-inverse/80 underline hover:text-frost">{site.email}</a>}
+      <div class="cta-actions">
+        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
+        {site.phone && <a href={`tel:${site.phone}`} class="key key-ghost px-7 py-3.5 text-lg">Call {site.phone}</a>}
+        {site.email && <a href={`mailto:${site.email}`} class="pt-1 text-center text-inverse/80 underline hover:text-frost">{site.email}</a>}
       </div>
     </div>
   </section>
@@ -124,13 +125,7 @@ import { cornerstones, locations, site, steps } from "../site";
     align-items: center;
     gap: 0.6rem;
     font-weight: 700;
-    color: var(--color-ink);
-  }
-  .label::before {
-    content: "";
-    width: 1.5rem;
-    height: 3px;
-    background: var(--color-lime);
+    color: var(--color-lime-dark);
   }
   .photo {
     display: grid;
@@ -159,11 +154,6 @@ import { cornerstones, locations, site, steps } from "../site";
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    padding-top: 1.25rem;
-    border-top: 6px solid var(--color-ink);
-  }
-  .pillar:nth-child(odd) {
-    border-top-color: var(--color-lime);
   }
   .pillar-num {
     font-weight: 800;
@@ -174,6 +164,13 @@ import { cornerstones, locations, site, steps } from "../site";
   .pillar-title {
     font-size: clamp(1.35rem, 2.2vw, 1.6rem);
     color: var(--color-ink);
+  }
+  /* The one kind of line we keep: a lime underline on a key phrase. */
+  .mark {
+    text-decoration: underline;
+    text-decoration-color: var(--color-lime);
+    text-decoration-thickness: 0.12em;
+    text-underline-offset: 0.14em;
   }
   .owners {
     max-width: 26rem;
@@ -192,10 +189,21 @@ import { cornerstones, locations, site, steps } from "../site";
     align-items: center;
     padding: clamp(2rem, 5vw, 3.5rem);
     border-radius: var(--radius-control);
-    border-top: 6px solid var(--color-lime);
     background: var(--color-cabinet);
   }
+  .cta-actions {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 22rem;
+    justify-self: center;
+  }
+  .cta-actions .key {
+    justify-content: center;
+    text-align: center;
+  }
   @media (min-width: 768px) {
+    .cta-actions { justify-self: end; }
     .cta {
       grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
     }

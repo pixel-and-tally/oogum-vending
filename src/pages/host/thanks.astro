@@ -1,12 +1,15 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { site } from "../../site";
 ---
 
 <Base title="Request sent" noindex>
   <section class="mx-auto flex w-full max-w-2xl flex-col items-start gap-6 px-4 py-20 sm:px-6">
     <p class="rounded-full bg-lime-soft px-4 py-1 font-semibold text-lime-dark">Thank you. Request received.</p>
     <h1 class="text-4xl text-ink sm:text-5xl">We'll be in touch.</h1>
-    <p class="text-lg text-muted">Stephen or Nancy will reach out within a couple of business days. If you picked a call time, watch for an email confirming it.</p>
-    <a href="/" class="key px-5 py-3">Back to the machine</a>
+    <p class="text-lg text-muted">Thanks for thinking of us. Stephen or Nancy will reach out within a couple of business days. If you picked a call time, watch for an email confirming it.</p>
+    {site.phone && <p class="text-lg text-muted">Can't wait? Call or text <a class="font-semibold text-ink underline" href={`tel:${site.phone}`}>{site.phone}</a>. One of us will pick up.</p>}
+    <p class="text-xl font-bold text-ink">Talk soon,<br />Stephen and Nancy</p>
+    <a href="/" class="key px-5 py-3">Back to home</a>
   </section>
 </Base>

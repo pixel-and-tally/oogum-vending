@@ -1,0 +1,89 @@
+---
+// Host questions, as open-and-close answers. Data lives in faqs in src/site.ts.
+import { faqs } from "../site";
+
+interface Props {
+  heading?: string;
+}
+const { heading = "Questions we hear a lot" } = Astro.props;
+---
+
+<section class="mx-auto w-[min(100%-2rem,72rem)] py-16" aria-labelledby="faq">
+  <div class="grid gap-10 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-14">
+    <div class="flex flex-col items-start gap-4">
+      <p class="font-bold text-lime-dark">Good questions</p>
+      <h2 id="faq" class="text-[clamp(1.8rem,3.6vw,2.5rem)] text-ink">{heading}</h2>
+      <p class="text-lg text-muted">Something we didn't cover? Ask us. A real person will answer.</p>
+    </div>
+    <div class="flex flex-col gap-3">
+      {
+        faqs.map((f) => (
+          <details class="faq">
+            <summary>
+              <span>{f.q}</span>
+              <span class="faq-icon" aria-hidden="true" />
+            </summary>
+            <p>{f.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    border-radius: var(--radius-card);
+    background: var(--color-paper);
+  }
+  .faq summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--color-ink);
+  }
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq summary:focus-visible {
+    outline: 3px solid var(--color-sun);
+    border-radius: var(--radius-card);
+  }
+  .faq p {
+    padding: 0 1.25rem 1.25rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-muted);
+  }
+  /* Plus that turns into a minus. */
+  .faq-icon {
+    position: relative;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    background: var(--color-lime);
+  }
+  .faq-icon::before,
+  .faq-icon::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 0.75rem;
+    height: 2px;
+    background: var(--color-ink);
+    transform: translate(-50%, -50%);
+  }
+  .faq-icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+  .faq[open] .faq-icon::after {
+    display: none;
+  }
+</style>

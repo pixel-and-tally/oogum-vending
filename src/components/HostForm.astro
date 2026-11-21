@@ -17,7 +17,7 @@ const fields = [
 const control =
   "w-full rounded-control border-2 border-line bg-frost px-4 py-3 text-base text-ink outline-none focus:border-cabinet focus:ring-4 focus:ring-sky/40 aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger/5";
 const chip =
-  "relative cursor-pointer rounded-control border-2 border-line bg-frost px-3 py-2 font-led text-xl leading-none whitespace-nowrap text-ink has-[:checked]:border-ink has-[:checked]:bg-lime has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-sun";
+  "relative cursor-pointer rounded-control border-2 border-line bg-frost px-3 py-2 text-base font-semibold leading-none whitespace-nowrap text-ink has-[:checked]:border-ink has-[:checked]:bg-lime has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-sun";
 const sendFailed = site.phone
   ? `That didn't send. Try again in a minute, or call us at ${site.phone}.`
   : "That didn't send. Try again in a minute.";
@@ -31,7 +31,7 @@ const sendFailed = site.phone
   <div data-form-error role="alert" tabindex="-1" hidden class="rounded-control border-2 border-danger bg-danger/5 px-4 py-3 font-semibold text-danger"></div>
 
   <fieldset class="flex min-w-0 flex-col gap-5">
-    <legend class="mb-2 font-display text-2xl">1. About your location</legend>
+    <legend class="mb-2 text-2xl font-bold">1. About your location</legend>
     <div class="grid gap-5 sm:grid-cols-2">
       {
         fields.map((f) => (
@@ -62,13 +62,13 @@ const sendFailed = site.phone
       <p id="traffic-error" class="text-sm font-semibold text-danger" hidden></p>
     </div>
     <div class="flex flex-col gap-1.5">
-      <label for="details" class="text-sm font-bold">Anything else? <span class="font-normal text-muted">(optional)</span></label>
+      <label for="details" class="text-sm font-bold">Anything else to know before talking? <span class="font-normal text-muted">(optional)</span></label>
       <textarea id="details" name="details" rows="4" autocomplete="off" class={control} placeholder="Where it could go, outlet nearby, hours, questions."></textarea>
     </div>
   </fieldset>
 
   <fieldset class="flex min-w-0 flex-col gap-4" data-call-picker data-availability={JSON.stringify(availability)}>
-    <legend class="mb-2 font-display text-2xl">2. Pick a time to talk <span class="font-body text-base text-muted">(optional)</span></legend>
+    <legend class="mb-2 text-2xl font-bold">2. Pick a time to talk <span class="font-body text-base text-muted">(optional)</span></legend>
     <p class="text-sm text-muted">A {availability.callMinutes}-minute call, Eastern time. We'll confirm by email. Skip this and we'll call you.</p>
     <noscript><p class="text-sm">Turn on JavaScript to pick a time, or just send this and we'll reach out.</p></noscript>
     <div>

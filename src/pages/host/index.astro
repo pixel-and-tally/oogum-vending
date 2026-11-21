@@ -1,35 +1,48 @@
 ---
 import Base from "../../layouts/Base.astro";
 import HostForm from "../../components/HostForm.astro";
+import Faq from "../../components/Faq.astro";
+import { hostSteps, site } from "../../site";
 
-// What a host gets. TODO: confirm each line with Stephen and Nancy (commission? power needs?).
-const deal = [
-  { k: "Cost to you", v: "Nothing. We bring and own the machine." },
-  { k: "What you give", v: "A standard outlet and a spot people walk past." },
-  { k: "Stocking", v: "The machine tells us when it runs low. We restock before it's empty." },
-  { k: "Cleaning and fixes", v: "Ours. Call us and one of the owners picks up." },
-];
 ---
 
-<Base title="Host a machine" description="Get a free refrigerated smart vending machine for your store's waiting room. Oogum Vending stocks it, cleans it and keeps it running.">
-  <section class="mx-auto grid w-full max-w-6xl gap-8 px-4 pt-6 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+<Base title="Bring vending to your location" description="Get a free refrigerated smart AI vending machine for your business in Belmont, Gastonia, Charlotte and nearby. Family-owned Oogum Vending stocks it, cleans it and keeps it running." faq>
+  <section class="mx-auto grid w-full max-w-6xl gap-8 px-4 pt-6 pb-16 sm:px-6 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
     <div class="flex flex-col gap-6">
-      <p class="font-semibold text-lime-dark">Now placing machines in NC</p>
-      <h1 class="text-4xl text-ink sm:text-5xl">Give your waiting room a cold drink.</h1>
+      <p class="font-semibold text-lime-dark">Free to host. Family owned.</p>
+      <h1 class="text-4xl text-ink sm:text-5xl">Give your customers something cold to grab.</h1>
       <p class="text-lg text-muted">
-        We're adding machines at Firestone stores across North Carolina, starting from our first one in Belmont. Tell us about your location and we'll come take a look.
+        Tell us a little about your spot and Stephen or Nancy will get back to you. We'll come take a look, and if it's a fit, we'll bring the machine. Rather talk? Call {site.phone}.
       </p>
-      <dl class="cabinet flex flex-col gap-4 p-5">
+      <ol class="flex flex-col gap-4">
         {
-          deal.map((d) => (
-            <div class="border-b border-cabinet-2 pb-3 last:border-0 last:pb-0">
-              <dt class="font-display text-sm uppercase text-lime">{d.k}</dt>
-              <dd class="mt-1 text-inverse">{d.v}</dd>
-            </div>
+          hostSteps.map((s, i) => (
+            <li class="flex gap-4">
+              <span class="step-num" aria-hidden="true">{i + 1}</span>
+              <span class="flex flex-col gap-1">
+                <span class="text-lg font-bold text-ink">{s.title}</span>
+                <span class="text-muted">{s.body}</span>
+              </span>
+            </li>
           ))
         }
-      </dl>
+      </ol>
     </div>
     <HostForm />
   </section>
+  <Faq heading="Before you ask" />
 </Base>
+
+<style>
+  .step-num {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: var(--color-lime);
+    font-weight: 800;
+    color: var(--color-ink);
+  }
+</style>
