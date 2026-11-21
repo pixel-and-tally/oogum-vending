@@ -1,7 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import StepArt from "../components/StepArt.astro";
-import { cornerstones, locations, site, steps } from "../site";
+import { cornerstones, family, locations, site, steps } from "../site";
 
 ---
 
@@ -12,10 +12,10 @@ import { cornerstones, locations, site, steps } from "../site";
       <p class="label">Family owned in {site.hometown}</p>
       <h1 class="text-[clamp(2.3rem,5vw,3.75rem)] text-ink">A vending machine with more options.</h1>
       <p class="max-w-xl text-xl leading-relaxed text-muted">
-        Upgrade your store with a smart fridge full of cold drinks, snacks and healthier picks. Your customers tap, grab and go. We stock it, fix it and keep it full, and it costs you nothing. Honestly, the hardest part is picking where it goes.
+        Upgrade your store with a refrigerated smart AI machine full of cold drinks, snacks and healthier picks. Your customers tap, grab and go. We stock it, fix it and keep it full, and it costs you nothing. Honestly, the hardest part is picking where it goes.
       </p>
       <div class="flex flex-wrap gap-3">
-        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+        <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
         {site.phone && <a href={`tel:${site.phone}`} class="key px-7 py-3.5 text-lg">Call {site.phone}</a>}
       </div>
     </div>
@@ -50,27 +50,27 @@ import { cornerstones, locations, site, steps } from "../site";
       }
     </ol>
     <div class="mt-12 flex justify-center">
-      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
     </div>
   </section>
 
-  <!-- Family owned: Stephen and Nancy. -->
+  <!-- About us: family owned, personalized attention. -->
   <section class="border-y border-line bg-paper py-16" aria-labelledby="family">
     <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16">
       <figure class="owners">
         <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" loading="lazy" />
       </figure>
       <div class="flex flex-col items-start gap-5">
-        <p class="label">Family owned and operated</p>
-        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Meet Stephen and Nancy.</h2>
+        <p class="label">About us</p>
+        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">{family.promise}</h2>
         <p class="text-lg leading-relaxed text-muted">
-          {site.name} is a family business, owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
+          {site.name} is owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
         </p>
         <p class="text-lg leading-relaxed text-muted">
-          No call center and no runaround. When you work with us, you work with family, and we treat your spot like our own.
+          You're not an account number to us. You get a menu picked for your spot, a machine that tells us when it's running low, and a family that shows up when you call.
         </p>
         <div class="flex flex-wrap gap-3 pt-1">
-          <a href="/about/" class="key px-6 py-3">About us</a>
+          <a href="/about/" class="key px-6 py-3">Meet the family</a>
           {site.phone && <a href={`tel:${site.phone}`} class="key key-vend px-6 py-3">Call {site.phone}</a>}
         </div>
       </div>
@@ -108,7 +108,7 @@ import { cornerstones, locations, site, steps } from "../site";
       </div>
       <div class="flex flex-col items-start gap-3 md:items-end">
         <div class="flex flex-wrap gap-3">
-          <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+          <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">{site.cta}</a>
           {site.phone && <a href={`tel:${site.phone}`} class="key key-ghost px-7 py-3.5 text-lg">Call {site.phone}</a>}
         </div>
         {site.email && <a href={`mailto:${site.email}`} class="text-inverse/80 underline hover:text-frost">{site.email}</a>}

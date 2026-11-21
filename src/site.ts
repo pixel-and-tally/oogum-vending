@@ -14,7 +14,7 @@ export const site = {
   tagline: "Convenience, Reimagined.",
   url: "https://oogumvending.com",
   description:
-    "Family-owned Oogum Vending places smart market machines in Charlotte, NC and surrounding areas. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
+    "Family-owned Oogum Vending places refrigerated smart AI vending machines in Charlotte, NC and surrounding areas. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
   hometown: "Belmont, NC",
   serviceArea: "Charlotte, NC and surrounding areas",
   // Towns Blake listed (2026-11-20). Shown on the home and About pages.
@@ -27,7 +27,30 @@ export const site = {
   machinePlatform: "",
   // Path under public/. Their current logo; swap the file if they pick a new one. Empty shows a text sign.
   logo: "/oogum-logo.png",
+  // The main button on every page (the owners' wording, 2026-11-21).
+  cta: "Bring vending to my location",
 } as const;
+
+/**
+ * About Us. Stephen and Nancy liked a "meet the family" page that says it is a
+ * family-owned business that delivers personalized attention. Everything here
+ * is a promise about how they work, not a made-up story.
+ */
+export const family = {
+  promise: "A family-owned business that delivers personalized attention.",
+  // TODO: a line about each owner in their own words. Empty bios are hidden.
+  owners: [
+    { name: "Stephen", bio: "" },
+    { name: "Nancy", bio: "" },
+  ],
+  // What "personalized attention" means in practice. Facts from the flier and the owners.
+  attention: [
+    { title: "You get one of us", body: "Call or text and Stephen or Nancy picks up. No call center, no ticket number." },
+    { title: "A menu picked for your spot", body: "We choose the drinks and snacks for the people who walk past your machine, and change them when tastes change." },
+    { title: "We see it before you do", body: "The machine tracks its own stock and alerts us when it runs low, so we restock before it's empty." },
+    { title: "We fix it ourselves", body: "Cleaning, repairs and restocking are on us. You don't lift a finger or pay a cent." },
+  ],
+};
 
 /** Short promises from the flier, shown on the navy strip. */
 export const promises = ["Improve satisfaction", "Hassle-free service", "No cost to you"];
@@ -46,7 +69,7 @@ export type Cornerstone = {
 };
 
 export const cornerstones: Cornerstone[] = [
-  { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", icon: "tap", tone: "sky" },
+  { title: "Modern machines", body: "Refrigerated smart AI machines with cashless payment. Just tap, grab and go.", icon: "tap", tone: "sky" },
   { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", icon: "basket", tone: "lime" },
   { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", icon: "wrench", tone: "sun" },
   { title: "Reliable support", body: "Local, family service you can count on. Proudly serving Charlotte and the surrounding area.", icon: "support", tone: "ink" },

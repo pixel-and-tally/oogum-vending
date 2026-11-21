@@ -54,7 +54,7 @@ const here = Astro.url.pathname;
                 <a
                   href={t.href}
                   aria-current={here === t.href ? "page" : undefined}
-                  class="rounded-full px-5 py-2.5 text-ink hover:bg-lime-soft aria-[current=page]:bg-lime-soft aria-[current=page]:text-lime-dark"
+                  class="whitespace-nowrap rounded-full px-5 py-2.5 text-ink hover:bg-lime-soft aria-[current=page]:bg-lime-soft aria-[current=page]:text-lime-dark"
                 >
                   {t.label}
                 </a>
@@ -66,8 +66,8 @@ const here = Astro.url.pathname;
           {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-24 w-auto sm:h-28 md:h-36" /> : <span class="font-display text-2xl">{site.name}</span>}
         </a>
         <div class="nav-actions flex items-center gap-5">
-          {site.phone && <a href={`tel:${site.phone}`} class="hidden text-lg font-semibold text-ink lg:inline">{site.phone}</a>}
-          <a href="/host/" class="key key-vend px-6 py-3 text-base">Host a machine</a>
+          {site.phone && <a href={`tel:${site.phone}`} class="hidden whitespace-nowrap text-lg font-semibold text-ink lg:inline">{site.phone}</a>}
+          <a href="/host/" class="key key-vend nav-cta px-6 py-3 text-base lg:whitespace-nowrap">{site.cta}</a>
         </div>
       </nav>
     </header>
@@ -84,18 +84,21 @@ const here = Astro.url.pathname;
         </div>
         <div class="flex flex-col gap-1 sm:items-end">
           <a href="/about/" class="underline">About us</a>
-          <a href="/host/" class="underline">Host a machine</a>
+          <a href="/host/" class="underline">{site.cta}</a>
           <a href="/hub/" class="underline">Owner login</a>
           <p class="text-chrome">© {year} {site.name}</p>
-          <SiteCredit class="text-chrome" />
         </div>
+      </div>
+      <!-- The Pixel & Tally credit sits alone in the bottom-right corner. -->
+      <div class="mx-auto flex w-full max-w-6xl justify-end px-4 pb-6 sm:px-6">
+        <SiteCredit class="text-chrome" />
       </div>
     </footer>
   </body>
 </html>
 
 <style>
-  /* Logo in the middle, tabs on the left, Host a machine and phone on the right.
+  /* Logo in the middle, tabs on the left, the main button and phone on the right.
      On phones the logo sits on its own row above. */
   .site-nav {
     display: grid;
@@ -112,10 +115,10 @@ const here = Astro.url.pathname;
   }
   @media (max-width: 639px) {
     .site-nav {
-      grid-template-columns: 1fr auto;
-      grid-template-areas: "logo logo" "tabs actions";
+      grid-template-columns: 1fr;
+      grid-template-areas: "logo" "tabs" "actions";
+      justify-items: center;
     }
-    .nav-tabs { justify-self: start; }
-    .nav-actions { justify-self: end; }
+    .nav-tabs, .nav-actions { justify-self: center; }
   }
 </style>
