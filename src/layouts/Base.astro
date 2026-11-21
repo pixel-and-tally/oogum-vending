@@ -74,10 +74,10 @@ const here = Astro.url.pathname;
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <footer class="border-t-8 border-lime bg-cabinet text-inverse">
+    <footer class="bg-cabinet text-inverse">
       <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-10 text-sm sm:flex-row sm:justify-between sm:px-6">
         <div class="flex flex-col gap-1">
-          <p class="font-display text-lg uppercase text-lime">{site.name}</p>
+          <p class="text-lg font-bold text-lime">{site.name}</p>
           <p>Owned by {site.owners}. {site.hometown}.</p>
           {site.phone && <p><a class="underline" href={`tel:${site.phone}`}>{site.phone}</a></p>}
           {site.email && <p><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></p>}
