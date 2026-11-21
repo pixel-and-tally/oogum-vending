@@ -59,7 +59,7 @@
   /* Shape */
   --radius-cabinet: 2rem;
   --radius-card: 0.9rem;
-  --radius-control: 0.6rem;
+  --radius-control: 0.5rem;
 }
 
 @layer base {
@@ -134,7 +134,7 @@
     background: var(--color-frost);
     color: var(--color-ink);
     border: 2px solid var(--color-ink);
-    border-radius: 999px;
+    border-radius: var(--radius-control);
     transition: background-color 120ms, color 120ms;
   }
   .key:hover {
