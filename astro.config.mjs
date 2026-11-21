@@ -1,15 +1,15 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import netlify from "@astrojs/netlify";
+import cloudflare from "@astrojs/cloudflare";
 import { site } from "./src/site.ts";
 
-// Public pages are prerendered to static HTML. The host form endpoint and the
-// owner hub (routes that set `prerender = false`) run as Netlify functions.
+// Pages are prerendered to static HTML. Only routes that set `prerender = false`
+// (the host form endpoint and the owner hub) run in the Cloudflare Worker (see wrangler.jsonc).
 export default defineConfig({
   site: site.url,
   output: "static",
-  adapter: netlify(),
+  adapter: cloudflare({ imageService: "compile", platformProxy: { enabled: false } }),
   trailingSlash: "ignore",
   build: { format: "directory" },
   vite: { plugins: [tailwindcss()] },

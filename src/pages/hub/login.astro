@@ -37,7 +37,7 @@ const control = "w-full rounded-control border-2 border-line bg-frost px-4 py-3 
     {
       !configured ? (
         <p class="rounded-control border-2 border-sun bg-sun/15 p-4 text-sm">
-          The hub isn't set up yet. Add <code>HUB_USERS</code> and <code>HUB_SECRET</code> in Netlify, then redeploy. The README says how.
+          The hub isn't set up yet. Add <code>HUB_USERS</code> and <code>HUB_SECRET</code> in Cloudflare (Settings > Variables and Secrets), then redeploy. The README says how.
         </p>
       ) : (
         <form method="POST" class="flex flex-col gap-4" novalidate>

@@ -3,10 +3,10 @@ import { parseHost, sendHostEmail, type HostRequest } from "../../lib/host";
 import { getStore, newId } from "../../lib/store";
 import { availability } from "../../site";
 
-// Runs as a Netlify function. Saves the request for the hub, then emails the owners.
+// Runs in the Cloudflare Worker. Saves the request for the hub, then emails the owners.
 export const prerender = false;
 
-// Netlify > Site configuration > Environment variables.
+// Cloudflare > Workers & Pages > oogum-vending > Settings > Variables and Secrets.
 // HOST_TO_EMAIL can hold both owners, comma separated.
 const config = () => ({
   apiKey: process.env.RESEND_API_KEY ?? "",
