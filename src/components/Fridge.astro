@@ -1,364 +1,367 @@
 ---
-// The home page's main piece: a big glass-door smart fridge, like Oogum's real
-// machines. The cards on its shelves are the site's main points.
+// The home page's main piece: a black double-door smart fridge, like Oogum's real
+// machines. The main points sit on its shelves as cards, all the same size.
 import { cards, locations, site } from "../site";
 
+const perDoor = Math.ceil(cards.length / 2);
+const doors = [cards.slice(0, perDoor), cards.slice(perDoor)];
 const rows = ["A", "B", "C", "D"];
-const code = (i: number) => `${rows[Math.floor(i / 3)]}${(i % 3) + 1}`;
-const steps = ["Swipe / Tap", "Grab items", "Auto checkout"];
+// Row letter, then column across the whole machine (two columns per door).
+const code = (door: number, i: number) => `${rows[Math.floor(i / 2)]}${door * 2 + (i % 2) + 1}`;
 ---
 
-<section class="fridge-wrap" aria-labelledby="why">
-  <div class="fridge">
-    <header class="sign">
-      {site.logo ? <img src={site.logo} alt={site.name} class="sign-logo" /> : <span class="font-sign text-4xl text-ink">{site.name}</span>}
-      <h2 id="why" class="sign-title">Why choose {site.name}?</h2>
+<section class="wrap" aria-labelledby="why">
+  <h2 id="why" class="mb-6 text-center text-3xl text-ink sm:text-5xl">
+    Why choose <span class="text-lime-dark">{site.name}</span>?
+  </h2>
+
+  <div class="machine">
+    <header class="topper">
+      <div class="plate">
+        {site.logo ? <img src={site.logo} alt="" class="plate-logo" /> : <span class="font-display text-3xl text-ink">{site.name}</span>}
+      </div>
+      <p class="topper-text">Smart<br />vending</p>
+      <div class="reader" aria-hidden="true">
+        <span class="reader-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M8.5 7.5a6 6 0 0 1 0 9M12 5a9.5 9.5 0 0 1 0 14M5 10a2.5 2.5 0 0 1 0 4" />
+          </svg>
+        </span>
+        <span>Tap to unlock</span>
+      </div>
+      <span class="glow" aria-hidden="true"></span>
     </header>
 
-    <div class="body">
-      <aside class="side" aria-label="How to buy">
-        <div class="reader" aria-hidden="true">
-          <span class="reader-waves">)))</span>
-          <span>Tap here</span>
-        </div>
-        <ol class="steps">
-          {steps.map((s) => <li>{s}</li>)}
-        </ol>
-        <a href="/host/" class="side-sticker">Host a machine</a>
-      </aside>
-
-      <div class="door">
-        <span class="lightbar" aria-hidden="true"></span>
-        <ul class="shelves">
-          {
-            cards.map((c, i) => (
-              <li class="card" style={`--tone: var(--color-${c.tone})`}>
-                <span class="card-code">{code(i)}</span>
-                <h3 class="card-title">{c.title}</h3>
-                <p class="card-body">{c.body}</p>
-                {c.showLocations && (
-                  <ul class="mt-2 flex flex-col gap-1">
-                    {locations.map((l) => (
-                      <li class="font-display text-lg">
-                        {l.name}, {l.city}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {c.link && (
-                  <a href={c.link.href} class="card-link">
-                    {c.link.label} →
-                  </a>
-                )}
-              </li>
-            ))
-          }
-        </ul>
-        <span class="handle" aria-hidden="true"></span>
-      </div>
+    <div class="doors">
+      {
+        doors.map((list, d) => (
+          <div class:list={["door", d === 0 ? "door-left" : "door-right"]}>
+            {list.map((c, i) => (
+              <article class="slot" style={`--tone: var(--color-${c.tone})`}>
+                <div class="card">
+                  <h3 class="card-title">{c.title}</h3>
+                  <p class="card-body">{c.body}</p>
+                  {c.showLocations && (
+                    <ul class="mt-1">
+                      {locations.map((l) => (
+                        <li class="font-display text-lg font-semibold uppercase">
+                          {l.name}, {l.city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {c.link && (
+                    <a href={c.link.href} class="card-link">
+                      {c.link.label} →
+                    </a>
+                  )}
+                </div>
+                <div class="rail">
+                  <span class="tag">{code(d, i)}</span>
+                </div>
+              </article>
+            ))}
+            <span class="handle" aria-hidden="true"></span>
+          </div>
+        ))
+      }
     </div>
 
-    <div class="grille" aria-hidden="true"></div>
+    <div class="kick" aria-hidden="true">
+      <span class="vent"></span>
+      <span class="badge">{site.name}</span>
+    </div>
   </div>
-  <div class="feet" aria-hidden="true"><span></span><span></span></div>
+  <div class="casters" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
 </section>
 
 <style>
-  .fridge-wrap {
-    width: min(100% - 2rem, 76rem);
-    margin: 0 auto 3rem;
-  }
-  .fridge {
-    background:
-      linear-gradient(90deg, rgb(255 255 255 / 0.05), transparent 10%, transparent 90%, rgb(0 0 0 / 0.3)),
-      var(--color-cabinet);
-    border: 5px solid var(--color-chrome-dark);
-    border-radius: 1.5rem;
-    padding: clamp(0.6rem, 1.5vw, 1rem);
-    box-shadow:
-      inset 0 0 0 3px var(--color-cabinet-2),
-      0 30px 60px -20px rgb(0 0 0 / 0.8);
+  .wrap {
+    width: min(100% - 2rem, 72rem);
+    margin: 0 auto 4rem;
   }
 
-  /* Lit sign across the top. */
-  .sign {
+  /* Black cabinet with a slight sheen, like the real machine. */
+  .machine {
+    background:
+      linear-gradient(90deg, rgb(255 255 255 / 0.08), transparent 6%, transparent 94%, rgb(255 255 255 / 0.05)),
+      var(--color-machine);
+    border-radius: 1.25rem 1.25rem 0.75rem 0.75rem;
+    padding: 0 clamp(0.5rem, 1.4vw, 1rem);
+    box-shadow:
+      inset 0 0 0 2px var(--color-machine-2),
+      0 40px 50px -30px rgb(1 32 76 / 0.55);
+  }
+
+  /* Topper: lit logo plate, "Smart vending", card reader. */
+  .topper {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    background: var(--color-frost);
-    border-radius: 1rem;
-    padding: 0.5rem 1.25rem;
-    box-shadow: 0 0 28px rgb(127 211 245 / 0.35);
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    padding: clamp(0.75rem, 1.6vw, 1.1rem) clamp(0.25rem, 1vw, 0.5rem);
   }
-  .sign-logo {
-    height: clamp(3.5rem, 8vw, 5.5rem);
+  .plate {
+    background: var(--color-frost);
+    border-radius: 0.75rem;
+    padding: 0.25rem 0.9rem;
+    box-shadow: 0 0 24px rgb(255 255 255 / 0.25);
+  }
+  .plate-logo {
+    height: clamp(3rem, 6.5vw, 4.75rem);
     width: auto;
   }
-  .sign-title {
+  .topper-text {
     font-family: var(--font-display);
-    color: var(--color-ink);
-    font-size: clamp(1.1rem, 2.6vw, 2rem);
-    text-align: right;
-    line-height: 1.1;
-  }
-
-  .body {
-    display: grid;
-    grid-template-columns: 9.5rem minmax(0, 1fr);
-    gap: clamp(0.6rem, 1.5vw, 1rem);
-    margin-top: clamp(0.6rem, 1.5vw, 1rem);
-  }
-
-  /* The side panel, like the decal on the real machine. */
-  .side {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1rem 0.75rem;
-    border: 3px solid var(--color-cabinet-2);
-    border-radius: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-frost);
+    font-size: clamp(1rem, 2.2vw, 1.6rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
   }
   .reader {
+    margin-left: auto;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.75rem 0.5rem;
-    background: var(--color-led-bg);
-    border: 3px solid var(--color-chrome-dark);
+    gap: 0.6rem;
+    padding: 0.55rem 0.9rem;
+    background: var(--color-machine-2);
+    border: 2px solid var(--color-chrome-dark);
     border-radius: 0.75rem;
-    color: var(--color-led);
-    font-family: var(--font-led);
-    font-size: 1.3rem;
-    text-shadow: 0 0 6px rgb(109 255 138 / 0.8);
+    color: var(--color-frost);
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.9rem;
   }
-  .reader-waves {
-    font-size: 1.8rem;
-    line-height: 1;
-    transform: rotate(-90deg);
-    animation: pulse 1.6s ease-in-out infinite;
+  .reader-icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    background: var(--color-lime);
+    color: var(--color-ink);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  .reader-icon svg {
+    width: 1.4rem;
+    height: 1.4rem;
   }
   @keyframes pulse {
     50% {
-      opacity: 0.35;
+      box-shadow: 0 0 0 6px rgb(142 192 8 / 0.25);
     }
   }
-  .steps {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-    counter-reset: step;
-  }
-  .steps li {
-    position: relative;
-    padding: 0.5rem 0.4rem;
-    border: 2px solid var(--color-chrome);
-    border-radius: 0.5rem;
-    color: var(--color-frost);
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    text-align: center;
-  }
-  .steps li + li::before {
-    content: "▼";
+  .glow {
     position: absolute;
-    top: -1.3rem;
-    left: 50%;
-    transform: translateX(-50%);
-    color: var(--color-chrome);
-    font-size: 0.8rem;
-  }
-  .side-sticker {
-    margin-top: auto;
-    padding: 0.75rem 0.5rem;
-    background: var(--color-orange);
-    color: var(--color-frost);
-    border-radius: 0.6rem;
-    font-family: var(--font-display);
-    font-size: 0.9rem;
-    text-align: center;
-    transform: rotate(-3deg);
-    box-shadow: 4px 4px 0 var(--color-floor);
-  }
-  .side-sticker:hover {
-    transform: rotate(0deg) scale(1.04);
-  }
-
-  /* The glass door: lit inside, chrome frame, a handle on the right. */
-  .door {
-    position: relative;
-    padding: clamp(1rem, 2.5vw, 1.75rem) clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.75rem) clamp(0.75rem, 2vw, 1.75rem);
-    background:
-      linear-gradient(105deg, transparent 20%, rgb(255 255 255 / 0.35) 24%, transparent 30%),
-      radial-gradient(120% 90% at 50% 0%, var(--color-frost), var(--color-glass) 55%, var(--color-cold));
-    border: 6px solid var(--color-chrome);
-    border-radius: 1rem;
-    box-shadow:
-      inset 0 0 0 2px var(--color-chrome-dark),
-      inset 0 0 50px rgb(127 211 245 / 0.6);
-  }
-  .lightbar {
-    position: absolute;
-    top: 0.4rem;
-    left: 8%;
-    right: 8%;
-    height: 5px;
+    left: 4%;
+    right: 4%;
+    bottom: 0;
+    height: 3px;
     border-radius: 999px;
     background: var(--color-frost);
-    box-shadow: 0 0 18px 6px rgb(255 255 255 / 0.9);
+    box-shadow: 0 0 14px 3px rgb(255 255 255 / 0.6);
+  }
+
+  /*
+   * Two glass doors. The rows are shared across both doors (subgrid), and every
+   * row is 1fr, so all eight cards come out the same size.
+   */
+  .doors {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0 clamp(0.4rem, 1vw, 0.7rem);
+    padding: clamp(0.5rem, 1.2vw, 0.8rem) 0;
+  }
+  .door {
+    --frame: clamp(8px, 1.2vw, 12px);
+    position: relative;
+    grid-row: span 2;
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(0.5rem, 1.2vw, 0.9rem);
+    /* No vertical padding here: subgrid edge rows would absorb it and the cards would differ in size. */
+    padding: 0 calc(var(--frame) + clamp(0.75rem, 1.6vw, 1.1rem));
+    /* Lit, cold interior behind glass, with a glare streak. */
+    background:
+      linear-gradient(115deg, transparent 18%, rgb(255 255 255 / 0.4) 22%, transparent 27%),
+      linear-gradient(115deg, transparent 60%, rgb(255 255 255 / 0.25) 62%, transparent 65%),
+      radial-gradient(130% 80% at 50% 0%, var(--color-frost), var(--color-glass) 60%, var(--color-cold));
+    /* The frame is an inset shadow, not a border, for the same reason. */
+    border-radius: 0.6rem;
+    box-shadow:
+      inset 0 0 0 var(--frame) var(--color-machine-2),
+      inset 0 0 0 calc(var(--frame) + 2px) rgb(0 0 0 / 0.35),
+      inset 0 0 40px rgb(127 211 245 / 0.55);
+  }
+  .door-left {
+    padding-right: calc(var(--frame) + clamp(1.25rem, 2.6vw, 1.9rem));
+  }
+  .door-right {
+    padding-left: calc(var(--frame) + clamp(1.25rem, 2.6vw, 1.9rem));
   }
   .handle {
     position: absolute;
-    right: 0.45rem;
-    top: 18%;
-    bottom: 18%;
-    width: 9px;
+    top: 12%;
+    bottom: 12%;
+    width: 8px;
     border-radius: 999px;
-    background: linear-gradient(90deg, var(--color-chrome-dark), var(--color-frost), var(--color-chrome-dark));
-    box-shadow: 0 2px 4px rgb(0 0 0 / 0.4);
+    background: linear-gradient(90deg, var(--color-chrome-dark), var(--color-frost) 45%, var(--color-chrome-dark));
+    box-shadow: 0 3px 5px rgb(0 0 0 / 0.35);
+  }
+  .door-left .handle {
+    right: calc(var(--frame) + 0.35rem);
+  }
+  .door-right .handle {
+    left: calc(var(--frame) + 0.35rem);
   }
 
-  /* Shelves: three cards per row, each row standing on a chrome lip. */
-  .shelves {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: clamp(0.75rem, 1.8vw, 1.25rem);
-    row-gap: clamp(2rem, 4vw, 2.75rem);
-  }
-  .card {
-    position: relative;
+  .slot {
     display: flex;
     flex-direction: column;
-    padding: 1.1rem 1.1rem 1.2rem;
+    min-height: 0;
+    padding-top: calc(var(--frame) + clamp(0.8rem, 1.6vw, 1.1rem));
+  }
+  .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem 1.1rem;
     background: var(--tone);
     color: var(--color-ink);
     border: 3px solid var(--color-ink);
-    border-radius: 0.9rem;
-    box-shadow: 6px 6px 0 var(--color-ink);
+    border-radius: 0.7rem;
+    box-shadow: 5px 5px 0 var(--color-ink);
     transition: transform 160ms, box-shadow 160ms;
   }
-  /* The shelf lip under each card. */
-  .card::after {
-    content: "";
-    position: absolute;
-    left: -0.75rem;
-    right: -0.75rem;
-    bottom: calc(-0.9rem - 6px);
-    height: 7px;
-    border-radius: 3px;
-    background: var(--color-chrome-dark);
-    box-shadow: 0 3px 0 rgb(1 32 76 / 0.25);
-    transition: transform 160ms;
-  }
-  .card:hover {
-    transform: translate(-3px, -6px) rotate(-1deg);
-    box-shadow: 9px 12px 0 var(--color-ink);
-  }
-  .card:hover::after {
-    transform: translate(3px, 6px) rotate(1deg);
-  }
-  .card-code {
-    align-self: flex-start;
-    padding: 0.1rem 0.45rem;
-    background: var(--color-frost);
-    border: 2px solid var(--color-ink);
-    border-radius: 0.3rem;
-    font-family: var(--font-led);
-    font-size: 1.2rem;
-    line-height: 1.1;
+  .slot:hover .card {
+    transform: translateY(-6px);
+    box-shadow: 5px 11px 0 var(--color-ink);
   }
   .card-title {
-    margin-top: 0.6rem;
-    font-family: var(--font-display);
-    font-size: clamp(1.35rem, 2.3vw, 1.9rem);
-    line-height: 1.05;
+    font-size: clamp(1.4rem, 2.3vw, 1.9rem);
   }
   .card-body {
-    margin-top: 0.5rem;
-    font-size: 1.05rem;
+    margin-top: 0.45rem;
+    font-size: 1.02rem;
     line-height: 1.4;
   }
   .card-link {
     margin-top: auto;
-    padding-top: 0.75rem;
+    padding-top: 0.7rem;
     font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
-  .grille {
-    height: 2.25rem;
-    margin-top: clamp(0.6rem, 1.5vw, 1rem);
-    border-radius: 0.6rem;
-    background: repeating-linear-gradient(var(--color-floor) 0 4px, var(--color-cabinet-2) 4px 8px);
-    border: 3px solid var(--color-cabinet-2);
+  /* Wire shelf with a price rail on the front edge. */
+  .rail {
+    position: relative;
+    margin: 0.6rem calc(-1 * clamp(0.25rem, 0.6vw, 0.45rem)) calc(var(--frame) + 0.4rem);
+    height: 1.4rem;
+    background: linear-gradient(var(--color-chrome), var(--color-chrome-dark));
+    border-radius: 3px;
+    box-shadow: 0 4px 6px rgb(1 32 76 / 0.25);
   }
-  .feet {
-    display: flex;
-    justify-content: space-between;
-    padding: 0 8%;
-  }
-  .feet span {
-    width: 2.5rem;
-    height: 0.8rem;
-    border-radius: 0 0 0.5rem 0.5rem;
-    background: var(--color-chrome-dark);
+  .tag {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 0.5rem;
+    background: var(--color-frost);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 3px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    color: var(--color-ink);
   }
 
-  @media (max-width: 60rem) {
-    .shelves {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Kick plate with a vent and a small badge. */
+  .kick {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.25rem 0.9rem;
+  }
+  .vent {
+    flex: 1;
+    height: clamp(2.5rem, 5vw, 3.5rem);
+    border-radius: 0.4rem;
+    background: repeating-linear-gradient(var(--color-machine) 0 5px, var(--color-machine-2) 5px 9px);
+    border: 2px solid var(--color-machine-2);
+  }
+  .badge {
+    padding: 0.25rem 0.6rem;
+    border: 1.5px solid var(--color-chrome-dark);
+    border-radius: 0.3rem;
+    color: var(--color-chrome);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .casters {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 3%;
+  }
+  .casters span {
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-top: -0.2rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-chrome-dark) 30%, var(--color-machine) 34%);
+  }
+
+  /* Tablet: each door holds one column of four cards. */
+  @media (max-width: 62rem) {
+    .doors {
+      grid-template-rows: repeat(4, 1fr);
+    }
+    .door {
+      grid-row: span 4;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
-  @media (max-width: 44rem) {
-    .body {
+  /* Phone: doors stack, one card per shelf. */
+  @media (max-width: 36rem) {
+    .doors {
       grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      row-gap: 0;
     }
-    .side {
-      flex-direction: row;
+    .door-left,
+    .door-right {
+      padding-left: calc(var(--frame) + 0.6rem);
+      padding-right: calc(var(--frame) + 1.4rem);
+    }
+    .door-right .handle {
+      left: auto;
+      right: calc(var(--frame) + 0.35rem);
+    }
+    .topper {
       flex-wrap: wrap;
-      align-items: center;
-      padding: 0.6rem;
     }
     .reader {
-      flex-direction: row;
-      padding: 0.4rem 0.6rem;
-    }
-    .steps {
-      flex-direction: row;
-      gap: 0.4rem;
-      flex: 1;
-    }
-    .steps li {
-      flex: 1;
-      font-size: 0.65rem;
-      padding: 0.4rem 0.2rem;
-    }
-    .steps li + li::before {
-      display: none;
-    }
-    .side-sticker {
-      display: none;
-    }
-    .shelves {
-      grid-template-columns: minmax(0, 1fr);
-    }
-    .sign {
-      flex-direction: column;
-      text-align: center;
-    }
-    .sign-title {
-      text-align: center;
+      margin-left: 0;
+      width: 100%;
+      justify-content: center;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .reader-waves {
+    .reader-icon {
       animation: none;
     }
-    .card,
-    .card::after {
+    .card {
       transition: none;
     }
   }

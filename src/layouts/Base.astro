@@ -33,30 +33,37 @@ const year = new Date().getFullYear();
     <meta property="og:url" content={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
   </head>
-  <body class="flex min-h-screen flex-col bg-floor text-inverse">
+  <body class="flex min-h-screen flex-col bg-page text-ink">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-sun focus:px-4 focus:py-2 focus:text-ink"
       >Skip to content</a
     >
     <nav class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6" aria-label="Main">
-      <a href="/" class="font-display text-lg text-sun">Oogum</a>
-      <a href="/host/" class="rounded-control border-2 border-orange px-3 py-1.5 font-display text-sm text-frost hover:bg-orange">Host a machine</a>
+      <a href="/" class="shrink-0">
+        {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-14 w-auto sm:h-16" /> : <span class="font-display text-2xl">{site.name}</span>}
+      </a>
+      <div class="flex items-center gap-4">
+        {site.phone && <a href={`tel:${site.phone}`} class="hidden font-display text-lg font-semibold sm:inline">{site.phone}</a>}
+        <a href="/host/" class="key key-vend px-4 py-2 text-sm">Host a machine</a>
+      </div>
     </nav>
     <main id="main" class="flex-1">
       <slot />
     </main>
-    <footer class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-10 text-sm text-chrome sm:flex-row sm:justify-between sm:px-6">
-      <div>
-        <p class="font-display text-sun">{site.name}</p>
-        <p>Owned by {site.owners}. {site.hometown}.</p>
-        {site.phone && <p><a class="underline" href={`tel:${site.phone}`}>{site.phone}</a></p>}
-        {site.email && <p><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></p>}
-      </div>
-      <div class="flex flex-col gap-1 sm:items-end">
-        <a href="/host/" class="underline">Host a machine</a>
-        <a href="/hub/" class="underline">Owner login</a>
-        <p class="text-chrome-dark">© {year} {site.name}</p>
+    <footer class="border-t-8 border-lime bg-cabinet text-inverse">
+      <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-10 text-sm sm:flex-row sm:justify-between sm:px-6">
+        <div class="flex flex-col gap-1">
+          <p class="font-display text-lg uppercase text-lime">{site.name}</p>
+          <p>Owned by {site.owners}. {site.hometown}.</p>
+          {site.phone && <p><a class="underline" href={`tel:${site.phone}`}>{site.phone}</a></p>}
+          {site.email && <p><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></p>}
+        </div>
+        <div class="flex flex-col gap-1 sm:items-end">
+          <a href="/host/" class="underline">Host a machine</a>
+          <a href="/hub/" class="underline">Owner login</a>
+          <p class="text-chrome">© {year} {site.name}</p>
+        </div>
       </div>
     </footer>
   </body>

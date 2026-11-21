@@ -36,7 +36,7 @@ export const locations: { name: string; city: string; note?: string }[] = [
 ];
 
 /**
- * The cards on the fridge shelves, in order (three to a shelf on wide screens).
+ * The cards on the fridge shelves, in order: two per door on each shelf, eight in all.
  * The first five are the flier's "Why choose Oogum Vending?" points.
  */
 export type ShelfCard = {
@@ -52,7 +52,7 @@ export const cards: ShelfCard[] = [
   { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", tone: "sky" },
   { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", tone: "lime" },
   { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", tone: "sun" },
-  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", tone: "lime" },
+  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", tone: "sky" },
   { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", tone: "orange" },
   {
     title: "Host a machine",
@@ -61,11 +61,11 @@ export const cards: ShelfCard[] = [
     link: { href: "/host/", label: "Request a machine" },
   },
   { title: "How it works", body: "Swipe or tap your card or phone. Open the door and grab what you want. Checkout happens on its own.", tone: "sun" },
-  { title: "Where we are", body: "Find an Oogum machine here:", tone: "orange", showLocations: true },
   {
     title: "Who we are",
-    body: "Oogum Vending is owned and run by Stephen and Nancy Turner in Belmont. When you call, you get one of us.",
+    body: "Owned and run by Stephen and Nancy Turner in Belmont. When you call, you get one of us. Find our machine at:",
     tone: "lime",
+    showLocations: true,
   },
 ];
 

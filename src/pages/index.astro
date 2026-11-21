@@ -5,86 +5,74 @@ import { promises, site } from "../site";
 ---
 
 <Base>
-  <section class="hero mx-auto grid w-[min(100%-2rem,76rem)] items-center gap-8 pt-4 pb-10 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-    <div class="flex flex-col gap-5">
-      <p class="led w-fit px-3 py-1 text-xl uppercase">Smart vending in {site.serviceArea}</p>
-      <h1 class="font-sign text-[clamp(2rem,8.5vw,4.5rem)] leading-none text-sun">{site.tagline}</h1>
-      <p class="max-w-xl text-xl text-chrome">
-        Great choices. Happy people. <span class="text-orange">Better business.</span> We put a smart vending machine in your spot, keep it stocked and running, and it costs you nothing.
+  <section class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-6 pb-12 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+    <div class="flex flex-col items-start gap-6">
+      <p class="rounded-full bg-lime-soft px-4 py-1.5 font-semibold text-lime-dark">Smart vending for {site.serviceArea}</p>
+      <h1 class="text-[clamp(2.8rem,8vw,5.5rem)] leading-[0.95] text-ink">
+        Convenience,<br /><span class="text-lime-dark">Reimagined.</span>
+      </h1>
+      <span class="h-2 w-28 rounded-full bg-lime" aria-hidden="true"></span>
+      <p class="max-w-xl text-xl text-muted">
+        Great choices. Happy people. <strong class="text-orange-dark">Better business.</strong> We put a smart vending machine in your spot, keep it stocked and running, and it costs you nothing.
       </p>
       <div class="flex flex-wrap gap-3">
         <a href="/host/" class="key key-vend px-6 py-3 text-lg">Host a machine</a>
         {site.phone && <a href={`tel:${site.phone}`} class="key px-6 py-3 text-lg">Call {site.phone}</a>}
       </div>
     </div>
-    <figure class="photo mx-auto">
-      <img src="/machine-photo.jpg" alt="An Oogum smart vending machine: a glass-door fridge stocked with drinks and snacks" width="255" height="482" />
-      <figcaption>Tap, grab and go</figcaption>
+    <figure class="photo">
+      <span class="photo-disc" aria-hidden="true"></span>
+      <img src="/machine-photo.png" alt="An Oogum smart vending machine: a black glass-door fridge stocked with drinks and snacks" width="231" height="485" />
     </figure>
   </section>
 
-  <!-- LED strip with the flier's three promises. -->
-  <div class="led mx-auto mb-10 w-[min(100%-2rem,76rem)] overflow-hidden py-2 text-2xl uppercase sm:text-3xl" aria-label={promises.join(". ")}>
-    <div class="ticker-run" aria-hidden="true">
-      {[0, 1].map(() => promises.map((p) => <span class="px-6">{p} <span class="text-sun">★</span></span>))}
-    </div>
+  <!-- Navy band with the flier's three promises. -->
+  <div class="mb-14 bg-cabinet py-4">
+    <ul class="mx-auto flex w-[min(100%-2rem,72rem)] flex-wrap items-center justify-center gap-x-5 gap-y-2 font-display text-lg font-semibold uppercase tracking-wide text-frost sm:text-2xl">
+      {
+        promises.map((p, i) => (
+          <>
+            {i > 0 && <li class="h-6 w-1 rounded bg-lime" aria-hidden="true" />}
+            <li>{p}</li>
+          </>
+        ))
+      }
+    </ul>
   </div>
 
   <Fridge />
 
-  <section class="mx-auto flex w-[min(100%-2rem,76rem)] flex-col items-center gap-4 pb-12 text-center">
-    <p class="text-2xl text-frost">Let's find the right vending solution for your location.</p>
+  <section class="mx-auto flex w-[min(100%-2rem,72rem)] flex-col items-center gap-4 pb-16 text-center">
+    <h2 class="text-3xl text-ink sm:text-4xl">Let's find the right vending solution for your location.</h2>
     <div class="flex flex-wrap justify-center gap-3">
       <a href="/host/" class="key key-vend px-6 py-3">Host a machine</a>
       {site.phone && <a href={`tel:${site.phone}`} class="key px-6 py-3">Call {site.phone}</a>}
     </div>
-    {site.email && <a href={`mailto:${site.email}`} class="text-chrome underline">{site.email}</a>}
+    {site.email && <a href={`mailto:${site.email}`} class="text-muted underline">{site.email}</a>}
   </section>
 </Base>
 
 <style>
   .photo {
     position: relative;
-    width: min(100%, 17rem);
+    display: grid;
+    place-items: center;
+    padding: 1rem 0 0;
+  }
+  .photo-disc {
+    position: absolute;
+    width: min(100%, 22rem);
+    aspect-ratio: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--color-lime-soft);
   }
   .photo img {
-    width: 100%;
+    position: relative;
+    width: min(70%, 15rem);
     height: auto;
-    border-radius: 1rem;
-    border: 4px solid var(--color-chrome);
-    box-shadow:
-      10px 10px 0 var(--color-lime),
-      0 0 50px rgb(127 211 245 / 0.35);
-  }
-  .photo figcaption {
-    position: absolute;
-    left: -1.25rem;
-    bottom: 1.5rem;
-    padding: 0.4rem 0.8rem;
-    background: var(--color-orange);
-    color: var(--color-frost);
-    font-family: var(--font-display);
-    border-radius: 0.5rem;
-    transform: rotate(-4deg);
-    box-shadow: 4px 4px 0 var(--color-floor);
-  }
-  .ticker-run {
-    display: flex;
-    width: max-content;
-    white-space: nowrap;
-    animation: run 22s linear infinite;
-  }
-  @keyframes run {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ticker-run {
-      animation: none;
-      flex-wrap: wrap;
-      width: auto;
-      justify-content: center;
-    }
+    filter: drop-shadow(0 24px 18px rgb(1 32 76 / 0.3));
   }
 </style>

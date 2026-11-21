@@ -1,13 +1,15 @@
 /*
- * THE THEME FILE. Oogum Vending: the whole site is a refrigerated vending machine.
- * A dark cabinet, a frosted glass window, orange buttons and a green LED readout.
+ * THE THEME FILE. Oogum Vending, matched to the owners' flier: white page, navy,
+ * lime and orange, bold condensed caps. The home page centers on a black smart fridge.
  * Components only use these tokens, never raw hex values.
  */
-@import url("https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=VT323&family=Outfit:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=VT323&family=Outfit:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
   /* Cabinet */
+  --color-machine: #16181d; /* the real machine is black */
+  --color-machine-2: #2b2f37;
   --color-cabinet: #01204c; /* machine body */
   --color-cabinet-2: #0d3170; /* panels on the body */
   --color-chrome: #c9d4dc; /* trim and handles */
@@ -19,7 +21,8 @@
   --color-cold: #7fd3f5; /* fridge glow */
 
   /* Page */
-  --color-floor: #00122c; /* page background around the machine */
+  --color-floor: #00122c; /* deep navy for grilles and shadows */
+  --color-page: #ffffff; /* page background */
   --color-paper: #f4f8fa; /* plain content areas, hub */
   --color-ink: #01204c;
   --color-muted: #4f6573;
@@ -30,6 +33,8 @@
   --color-orange: #f47a1f; /* buttons, VEND: Oogum orange */
   --color-orange-dark: #c35a0c;
   --color-lime: #8ec008; /* Oogum lime */
+  --color-lime-dark: #4f7a00; /* lime text on white */
+  --color-lime-soft: #eef7d9;
   --color-sky: #7fd3f5;
   --color-sun: #ffc93c;
 
@@ -42,8 +47,7 @@
   --color-success: #16804a;
 
   /* Type */
-  --font-sign: "Bungee Shade", "Bungee", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bungee", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-led: "VT323", ui-monospace, monospace;
 
@@ -55,7 +59,7 @@
 
 @layer base {
   html {
-    background-color: var(--color-floor);
+    background-color: var(--color-page);
     color: var(--color-ink);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
@@ -66,8 +70,9 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 400;
-    line-height: 1;
+    font-weight: 700;
+    line-height: 1.05;
+    text-transform: uppercase;
     text-wrap: balance;
   }
 
@@ -150,6 +155,9 @@
   /* Keypad and VEND buttons: chunky, pressable. */
   .key {
     font-family: var(--font-display);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     background: linear-gradient(var(--color-chrome), var(--color-chrome-dark));
     color: var(--color-ink);
     border-radius: var(--radius-control);
