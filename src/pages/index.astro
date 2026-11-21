@@ -31,27 +31,27 @@ import { cornerstones, locations, site, steps } from "../site";
     </p>
   </div>
 
-  <!-- The five cornerstones from the flier, as a numbered list beside the heading. -->
-  <section class="mx-auto grid w-[min(100%-2rem,72rem)] gap-10 py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16" aria-labelledby="cornerstones">
-    <div class="flex flex-col items-start gap-4 lg:sticky lg:top-8 lg:self-start">
-      <p class="label">Why choose Oogum Vending?</p>
-      <h2 id="cornerstones" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Five things we're stubborn about.</h2>
-      <p class="text-lg text-muted">Every machine we place comes with the same five promises. No exceptions.</p>
-      <a href="/host/" class="key key-vend mt-2 px-6 py-3">Host a machine</a>
+  <!-- The five pillars from the flier: the value every host gets, side by side. -->
+  <section class="mx-auto w-[min(100%-2rem,72rem)] py-16 sm:py-20" aria-labelledby="pillars">
+    <div class="flex flex-col items-center gap-3 text-center">
+      <p class="label">Our pillars</p>
+      <h2 id="pillars" class="text-[clamp(2rem,4.5vw,3.25rem)] text-ink">Five pillars. Every machine. No exceptions.</h2>
+      <p class="max-w-2xl text-lg text-muted">This is what you get when an Oogum machine moves in. We're a little stubborn about all five.</p>
     </div>
-    <ol class="stones">
+    <ol class="pillars mt-12">
       {
         cornerstones.map((c, i) => (
-          <li class="stone">
-            <span class="stone-num" aria-hidden="true">{i + 1}</span>
-            <div class="flex flex-col gap-1.5">
-              <h3 class="text-xl text-ink sm:text-2xl">{c.title}</h3>
-              <p class="text-muted">{c.body}</p>
-            </div>
+          <li class="pillar">
+            <span class="pillar-num" aria-hidden="true">{i + 1}</span>
+            <h3 class="pillar-title">{c.title}</h3>
+            <p class="text-muted">{c.body}</p>
           </li>
         ))
       }
     </ol>
+    <div class="mt-12 flex justify-center">
+      <a href="/host/" class="key key-vend px-7 py-3.5 text-lg">Host a machine</a>
+    </div>
   </section>
 
   <!-- Family owned: Stephen and Nancy. -->
@@ -144,25 +144,36 @@ import { cornerstones, locations, site, steps } from "../site";
     width: min(62%, 14rem);
     height: auto;
   }
-  .stones {
+  /* Pillars: five equal columns on desktop, each standing on a thick lime base line. */
+  .pillars {
+    display: grid;
+    gap: 2.5rem 1.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  }
+  @media (min-width: 1024px) {
+    .pillars {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .pillar {
     display: flex;
     flex-direction: column;
-    border-top: 2px solid var(--color-ink);
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 6px solid var(--color-ink);
   }
-  .stone {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1.25rem;
-    align-items: baseline;
-    padding: 1.5rem 0.25rem;
-    border-bottom: 1px solid var(--color-line);
+  .pillar:nth-child(odd) {
+    border-top-color: var(--color-lime);
   }
-  .stone-num {
+  .pillar-num {
     font-weight: 800;
-    font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+    font-size: clamp(2.75rem, 5vw, 3.75rem);
     line-height: 1;
     color: var(--color-lime-dark);
-    min-width: 2.5rem;
+  }
+  .pillar-title {
+    font-size: clamp(1.35rem, 2.2vw, 1.6rem);
+    color: var(--color-ink);
   }
   .owners {
     max-width: 26rem;
