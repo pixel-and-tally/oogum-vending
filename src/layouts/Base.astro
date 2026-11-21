@@ -12,6 +12,11 @@ const { title, description = site.description, noindex = false } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.hometown}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 const year = new Date().getFullYear();
+const tabs = [
+  { href: "/", label: "Home" },
+  { href: "/about/", label: "About Us" },
+];
+const here = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -39,15 +44,32 @@ const year = new Date().getFullYear();
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-sun focus:px-4 focus:py-2 focus:text-ink"
       >Skip to content</a
     >
-    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6" aria-label="Main">
-      <a href="/" class="shrink-0">
-        {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-14 w-auto sm:h-16" /> : <span class="font-display text-2xl">{site.name}</span>}
-      </a>
-      <div class="flex items-center gap-4">
-        {site.phone && <a href={`tel:${site.phone}`} class="hidden font-display text-lg font-semibold sm:inline">{site.phone}</a>}
-        <a href="/host/" class="key key-vend px-4 py-2 text-sm">Host a machine</a>
-      </div>
-    </nav>
+    <header class="border-b border-line">
+      <nav class="site-nav mx-auto w-full max-w-6xl px-4 py-3 sm:px-6" aria-label="Main">
+        <ul class="nav-tabs flex items-center gap-1 font-semibold">
+          {
+            tabs.map((t) => (
+              <li>
+                <a
+                  href={t.href}
+                  aria-current={here === t.href ? "page" : undefined}
+                  class="rounded-full px-3 py-2 text-ink hover:bg-lime-soft aria-[current=page]:bg-lime-soft aria-[current=page]:text-lime-dark"
+                >
+                  {t.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <a href="/" class="nav-logo justify-self-center">
+          {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-14 w-auto sm:h-16" /> : <span class="font-display text-2xl">{site.name}</span>}
+        </a>
+        <div class="nav-actions flex items-center justify-end gap-4">
+          {site.phone && <a href={`tel:${site.phone}`} class="hidden font-semibold text-ink md:inline">{site.phone}</a>}
+          <a href="/host/" class="key key-vend px-4 py-2 text-sm">Host a machine</a>
+        </div>
+      </nav>
+    </header>
     <main id="main" class="flex-1">
       <slot />
     </main>
@@ -60,6 +82,7 @@ const year = new Date().getFullYear();
           {site.email && <p><a class="underline" href={`mailto:${site.email}`}>{site.email}</a></p>}
         </div>
         <div class="flex flex-col gap-1 sm:items-end">
+          <a href="/about/" class="underline">About us</a>
           <a href="/host/" class="underline">Host a machine</a>
           <a href="/hub/" class="underline">Owner login</a>
           <p class="text-chrome">© {year} {site.name}</p>
@@ -68,3 +91,24 @@ const year = new Date().getFullYear();
     </footer>
   </body>
 </html>
+
+<style>
+  /* Logo in the middle, tabs on the left, Host a machine and phone on the right.
+     On phones the logo sits on its own row above. */
+  .site-nav {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "tabs logo actions";
+    align-items: center;
+    gap: 0.75rem 1rem;
+  }
+  .nav-tabs { grid-area: tabs; }
+  .nav-logo { grid-area: logo; }
+  .nav-actions { grid-area: actions; }
+  @media (max-width: 639px) {
+    .site-nav {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "logo logo" "tabs actions";
+    }
+  }
+</style>

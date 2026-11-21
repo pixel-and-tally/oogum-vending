@@ -7,7 +7,6 @@ const now = new Date("2026-11-16T14:00:00Z");
 
 const good = {
   name: "Dana Lee",
-  role: "Store manager",
   email: "dana@example.com",
   phone: "(704) 555-0100",
   business: "Firestone",

@@ -152,25 +152,31 @@
     letter-spacing: 0.08em;
   }
 
-  /* Keypad and VEND buttons: chunky, pressable. */
+  /* Site buttons: flat and simple. .key is the outlined one, .key-vend the solid lime one. */
   .key {
-    font-family: var(--font-display);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    background: linear-gradient(var(--color-chrome), var(--color-chrome-dark));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-body);
+    font-weight: 700;
+    background: var(--color-frost);
     color: var(--color-ink);
-    border-radius: var(--radius-control);
-    box-shadow: 0 4px 0 var(--color-cabinet-2);
-    transition: transform 80ms, box-shadow 80ms;
+    border: 2px solid var(--color-ink);
+    border-radius: 999px;
+    transition: background-color 120ms, color 120ms;
   }
-  .key:active,
-  .key[aria-pressed="true"] {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 var(--color-cabinet-2);
+  .key:hover {
+    background: var(--color-ink);
+    color: var(--color-frost);
   }
   .key-vend {
-    background: linear-gradient(var(--color-orange), var(--color-orange-dark));
+    background: var(--color-lime);
+    border-color: var(--color-lime);
+    color: var(--color-ink);
+  }
+  .key-vend:hover {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
     color: var(--color-frost);
   }
 
