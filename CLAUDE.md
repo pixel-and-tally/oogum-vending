@@ -17,7 +17,7 @@ Refrigerated smart vending machines; first location Firestone in Belmont, goal i
 - `npm run verify` must pass before every commit.
 - No em dashes in user-facing copy (`tests/no-em-dash.test.ts`).
 - Never invent facts about the business: no fake reviews, stats, locations, products or prices. Leave a field empty or a `TODO` and the page hides it.
-- The look is a vending machine (cabinet, frosted glass window, slots with codes, keypad, LED readout, pickup tray). Keep it unlike a normal website. Colors and fonts only from theme tokens.
+- The look is their real machine: a big glass-door smart fridge (lit sign, glass door with handle, tap reader, chrome shelves) whose shelves hold the main points as bold cards with slot codes, plus an LED strip. Blake rejected drawn sodas and spiral coils (2026-11-20). Keep it unlike a normal website. Colors and fonts only from theme tokens.
 - Every form field gets a label, `autocomplete`, and an inline error; on failure, focus the first bad field and show a form-level message.
 - Don't promise integrations (store prices, machine data) until the source is confirmed. See README.
 - Commit messages say what changed for the visitor or owner, in plain English.
