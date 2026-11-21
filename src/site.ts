@@ -27,7 +27,7 @@ export const site = {
   logo: "/oogum-logo.png",
 } as const;
 
-/** Short promises from the flier, shown on the LED strip. */
+/** Short promises from the flier, shown on the navy strip. */
 export const promises = ["Improve satisfaction", "Hassle-free service", "No cost to you"];
 
 /** Where machines are today. Real locations only. */
@@ -35,38 +35,27 @@ export const locations: { name: string; city: string; note?: string }[] = [
   { name: "Firestone", city: "Belmont, NC" },
 ];
 
-/**
- * The cards on the fridge shelves, in order: two per door on each shelf, eight in all.
- * The first five are the flier's "Why choose Oogum Vending?" points.
- */
-export type ShelfCard = {
+/** The flier's "Why choose Oogum Vending?" points: the five cornerstones on the home page. */
+export type Cornerstone = {
   title: string;
   body: string;
-  tone: "orange" | "lime" | "sky" | "sun";
-  link?: { href: string; label: string };
-  /** Show the locations list under the body. */
-  showLocations?: boolean;
+  icon: "tap" | "basket" | "wrench" | "support" | "free";
+  tone: "orange" | "lime" | "sky" | "sun" | "ink";
 };
 
-export const cards: ShelfCard[] = [
-  { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", tone: "sky" },
-  { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", tone: "lime" },
-  { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", tone: "sun" },
-  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", tone: "sky" },
-  { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", tone: "orange" },
-  {
-    title: "Host a machine",
-    body: "Want one at your shop or waiting room? Tell us about your spot and we'll come take a look.",
-    tone: "sky",
-    link: { href: "/host/", label: "Request a machine" },
-  },
-  { title: "How it works", body: "Swipe or tap your card or phone. Open the door and grab what you want. Checkout happens on its own.", tone: "sun" },
-  {
-    title: "Who we are",
-    body: "Owned and run by Stephen and Nancy Turner in Belmont. When you call, you get one of us. Find our machine at:",
-    tone: "lime",
-    showLocations: true,
-  },
+export const cornerstones: Cornerstone[] = [
+  { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", icon: "tap", tone: "sky" },
+  { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", icon: "basket", tone: "lime" },
+  { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", icon: "wrench", tone: "sun" },
+  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", icon: "support", tone: "ink" },
+  { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", icon: "free", tone: "orange" },
+];
+
+/** How a customer buys, shown as three steps. */
+export const steps = [
+  { title: "Tap", body: "Swipe or tap a card or phone on the reader." },
+  { title: "Grab", body: "The door unlocks. Take what you want." },
+  { title: "Go", body: "Close the door and checkout happens on its own." },
 ];
 
 // When a host can request a call with the owners (Eastern). TODO: their real hours.
