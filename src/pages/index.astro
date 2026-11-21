@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
+import StepArt from "../components/StepArt.astro";
 import { cornerstones, locations, promises, site, steps } from "../site";
 
 const tones = {
@@ -10,15 +11,14 @@ const tones = {
   sun: "bg-sun-soft text-orange-dark",
   ink: "bg-ink-soft text-ink",
 } as const;
-const bars = { orange: "bg-orange", lime: "bg-lime", sky: "bg-sky", sun: "bg-sun", ink: "bg-ink" } as const;
 ---
 
 <Base>
   <!-- Hero: short pitch on the left, their machine on the right. -->
   <section class="hero">
-    <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-12 pb-16 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+    <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 pt-10 pb-12 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
       <div class="flex flex-col items-start gap-6">
-        <p class="eyebrow">Smart vending for {site.serviceArea}</p>
+        <p class="eyebrow">Family owned. Serving {site.serviceArea}.</p>
         <h1 class="text-[clamp(2.3rem,5vw,3.75rem)] text-ink">A vending machine with more options.</h1>
         <p class="max-w-xl text-xl leading-relaxed text-muted">
           Upgrade your store with a smart fridge full of cold drinks, snacks and healthier picks. Customers tap, grab and go. We stock it and keep it running, and it costs you nothing.
@@ -47,60 +47,103 @@ const bars = { orange: "bg-orange", lime: "bg-lime", sky: "bg-sky", sun: "bg-sun
           <span class="badge-dot bg-sky"></span>Tap, grab and go
         </figcaption>
         <p class="badge badge-bottom" aria-hidden="true">
-          <span class="badge-dot bg-lime"></span>Stocked and serviced by us
+          <span class="badge-dot bg-lime"></span>Family owned and operated
         </p>
       </figure>
     </div>
   </section>
 
-  <!-- The five cornerstones from the flier. -->
-  <section class="mx-auto w-[min(100%-2rem,72rem)] py-20" aria-labelledby="cornerstones">
-    <div class="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
+  <!-- Navy break: where we serve. -->
+  <div class="bg-cabinet py-4 text-inverse">
+    <div class="mx-auto flex w-[min(100%-2rem,72rem)] flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
+      <span class="text-sm font-bold tracking-[0.12em] text-lime uppercase">Proudly serving</span>
+      <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-semibold sm:text-lg">
+        {
+          site.towns.map((t, i) => (
+            <>
+              {i > 0 && <li class="size-1.5 rounded-full bg-lime" aria-hidden="true" />}
+              <li>{t}</li>
+            </>
+          ))
+        }
+        <li class="text-inverse/70">and surrounding areas</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- The five cornerstones from the flier, as a numbered list beside the heading. -->
+  <section class="mx-auto grid w-[min(100%-2rem,72rem)] gap-10 py-16 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-16" aria-labelledby="cornerstones">
+    <div class="flex flex-col items-start gap-4 lg:sticky lg:top-8 lg:self-start">
       <p class="eyebrow">Why choose Oogum Vending?</p>
       <h2 id="cornerstones" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">The five cornerstones we're built on.</h2>
+      <p class="text-lg text-muted">Every machine we place comes with the same promises, from our family to your business.</p>
+      <a href="/host/" class="key key-vend mt-2 px-6 py-3">Host a machine</a>
     </div>
-    <ol class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-6">
+    <ol class="stones">
       {
         cornerstones.map((c, i) => (
-          <li class:list={["card relative flex flex-col gap-4 overflow-hidden p-7", i < 3 ? "lg:col-span-2" : "lg:col-span-3", i === 4 && "sm:col-span-2 lg:col-span-3"]}>
-            <span class:list={["absolute inset-x-0 top-0 h-1.5", bars[c.tone]]} aria-hidden="true" />
-            <div class="flex items-start justify-between">
-              <span class:list={["grid size-14 place-items-center rounded-2xl", tones[c.tone]]}>
-                <Icon name={c.icon} class="size-7" />
-              </span>
-              <span class="font-display text-4xl leading-none text-line" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+          <li class="stone">
+            <span class="stone-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+            <div class="flex flex-col gap-1.5">
+              <h3 class="text-xl text-ink sm:text-2xl">{c.title}</h3>
+              <p class="text-muted">{c.body}</p>
             </div>
-            <h3 class="text-xl text-ink">{c.title}</h3>
-            <p class="text-muted">{c.body}</p>
+            <span class:list={["stone-icon", tones[c.tone]]} aria-hidden="true">
+              <Icon name={c.icon} class="size-7" />
+            </span>
           </li>
         ))
       }
     </ol>
   </section>
 
-  <!-- How a customer buys. -->
-  <section class="bg-tint py-20" aria-labelledby="how">
-    <div class="mx-auto w-[min(100%-2rem,72rem)]">
-      <div class="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
-        <p class="eyebrow">How it works</p>
-        <h2 id="how" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Buying takes three steps.</h2>
+  <!-- Family owned: Stephen and Nancy. -->
+  <section class="bg-tint py-16" aria-labelledby="family">
+    <div class="mx-auto grid w-[min(100%-2rem,72rem)] items-center gap-10 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-16">
+      <figure class="owners">
+        <img src="/owners.jpg" alt={`${site.owners} standing beside their Oogum smart vending machine`} width="1000" height="1333" loading="lazy" />
+      </figure>
+      <div class="flex flex-col items-start gap-5">
+        <p class="eyebrow">Family owned and operated</p>
+        <h2 id="family" class="text-[clamp(1.9rem,4vw,2.75rem)] text-ink">Meet Stephen and Nancy.</h2>
+        <p class="text-lg leading-relaxed text-muted">
+          {site.name} is a family business, owned and run by {site.owners} in {site.hometown}. We place the machines, keep them stocked and answer the phone ourselves.
+        </p>
+        <p class="text-lg leading-relaxed text-muted">
+          No call center and no runaround. When you work with us, you work with family, and we treat your spot like our own.
+        </p>
+        <div class="flex flex-wrap gap-3 pt-1">
+          <a href="/about/" class="key px-6 py-3">About us</a>
+          {site.phone && <a href={`tel:${site.phone}`} class="key key-vend px-6 py-3">Call {site.phone}</a>}
+        </div>
       </div>
-      <ol class="steps mt-12 grid gap-8 md:grid-cols-3">
-        {
-          steps.map((s, i) => (
-            <li class="relative flex flex-col items-center gap-3 text-center">
-              <span class="step-num">{i + 1}</span>
-              <h3 class="text-xl text-ink">{s.title}</h3>
-              <p class="max-w-xs text-muted">{s.body}</p>
-            </li>
-          ))
-        }
-      </ol>
     </div>
   </section>
 
+  <!-- How a customer buys, with stick-figure drawings. -->
+  <section class="mx-auto w-[min(100%-2rem,72rem)] pt-14 pb-4" aria-labelledby="how">
+    <div class="flex flex-col items-center gap-2 text-center">
+      <p class="eyebrow">How it works</p>
+      <h2 id="how" class="text-[clamp(1.6rem,3.5vw,2.25rem)] text-ink">Tap, grab and go.</h2>
+    </div>
+    <ol class="mt-8 grid gap-6 sm:grid-cols-3">
+      {
+        steps.map((s, i) => (
+          <li class="flex flex-col items-center gap-2 text-center">
+            <StepArt step={i as 0 | 1 | 2} />
+            <h3 class="flex items-center gap-2 text-lg text-ink">
+              <span class="grid size-7 place-items-center rounded-full bg-lime text-sm">{i + 1}</span>
+              {s.title}
+            </h3>
+            <p class="max-w-xs text-sm text-muted">{s.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
   <!-- Call to action. -->
-  <section class="mx-auto w-[min(100%-2rem,72rem)] py-20">
+  <section class="mx-auto w-[min(100%-2rem,72rem)] py-14">
     <div class="cta">
       <div class="flex flex-col gap-3">
         <h2 class="text-[clamp(1.7rem,3.5vw,2.4rem)] text-frost">Let's find the right vending solution for your location.</h2>
@@ -182,30 +225,58 @@ const bars = { orange: "bg-orange", lime: "bg-lime", sky: "bg-sky", sun: "bg-sun
     height: 0.6rem;
     border-radius: 999px;
   }
-  .step-num {
+  .stones {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--color-line);
+  }
+  .stone {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.5rem 0.25rem;
+    border-bottom: 1px solid var(--color-line);
+    transition: background-color 150ms;
+  }
+  .stone:hover {
+    background: var(--color-tint);
+  }
+  .stone-num {
+    font-weight: 800;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-lime);
+    min-width: 3.5rem;
+  }
+  .stone-icon {
     display: grid;
     place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.25rem;
+    height: 3.25rem;
     border-radius: 999px;
-    background: var(--color-frost);
-    border: 2px solid var(--color-lime);
-    font-weight: 800;
-    font-size: 1.35rem;
-    color: var(--color-ink);
-    position: relative;
-    z-index: 1;
   }
-  /* A thin line joining the step numbers on wide screens. */
-  @media (min-width: 768px) {
-    .steps li:not(:last-child)::after {
-      content: "";
-      position: absolute;
-      top: 1.75rem;
-      left: calc(50% + 2.25rem);
-      right: calc(-50% + 2.25rem);
-      border-top: 2px dashed var(--color-lime);
-    }
+  .owners {
+    position: relative;
+    max-width: 26rem;
+    justify-self: center;
+  }
+  .owners::before {
+    content: "";
+    position: absolute;
+    inset: 1.25rem -1.25rem -1.25rem 1.25rem;
+    border-radius: 1.75rem;
+    background: var(--color-lime);
+  }
+  .owners img {
+    position: relative;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 1.75rem;
+    box-shadow: 0 20px 40px -24px color-mix(in srgb, var(--color-ink) 50%, transparent);
   }
   .cta {
     display: grid;

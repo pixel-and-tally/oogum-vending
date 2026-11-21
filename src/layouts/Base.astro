@@ -62,7 +62,7 @@ const here = Astro.url.pathname;
           }
         </ul>
         <a href="/" class="nav-logo justify-self-center">
-          {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-14 w-auto sm:h-16" /> : <span class="font-display text-2xl">{site.name}</span>}
+          {site.logo ? <img src={site.logo} alt={`${site.name} home`} class="h-20 w-auto sm:h-24" /> : <span class="font-display text-2xl">{site.name}</span>}
         </a>
         <div class="nav-actions flex items-center justify-end gap-4">
           {site.phone && <a href={`tel:${site.phone}`} class="hidden font-semibold text-ink md:inline">{site.phone}</a>}

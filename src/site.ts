@@ -14,9 +14,11 @@ export const site = {
   tagline: "Convenience, Reimagined.",
   url: "https://oogumvending.com",
   description:
-    "Oogum Vending places smart market machines in Gaston County, NC. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
+    "Family-owned Oogum Vending places smart market machines in Charlotte, NC and surrounding areas. Tap, grab and go. We stock, monitor and maintain everything, at no cost to the host.",
   hometown: "Belmont, NC",
-  serviceArea: "Gaston County, NC",
+  serviceArea: "Charlotte, NC and surrounding areas",
+  // Towns Blake listed (2026-11-20). Shown on the home and About pages.
+  towns: ["Charlotte", "Gastonia", "Belmont", "Mount Holly", "Cramerton"],
 
   // Contact, from the owners' flier. Empty values are hidden on the site.
   email: "Connect@OogumVending.com",
@@ -47,7 +49,7 @@ export const cornerstones: Cornerstone[] = [
   { title: "Modern machines", body: "Smart market machines with cashless payment. Just tap, grab and go.", icon: "tap", tone: "sky" },
   { title: "Quality products", body: "Popular snacks, beverages and healthier options, customized to your needs.", icon: "basket", tone: "lime" },
   { title: "Full service", body: "We stock, monitor and maintain everything, so you don't have to.", icon: "wrench", tone: "sun" },
-  { title: "Reliable support", body: "Local service you can count on. Proudly serving Gaston County.", icon: "support", tone: "ink" },
+  { title: "Reliable support", body: "Local, family service you can count on. Proudly serving Charlotte and the surrounding area.", icon: "support", tone: "ink" },
   { title: "100% free service", body: "Absolutely no cost to you. We bring the machine; you give it a plug and a spot.", icon: "free", tone: "orange" },
 ];
 
