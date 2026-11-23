@@ -1,6 +1,7 @@
 ---
 import Hub from "../../layouts/Hub.astro";
 import { SESSION_COOKIE, SESSION_DAYS, checkLogin, hubConfig, makeSession } from "../../lib/auth";
+import { hubUsers } from "../../lib/settings";
 
 export const prerender = false;
 
@@ -15,7 +16,7 @@ let username = "";
 if (Astro.request.method === "POST" && configured) {
   const form = await Astro.request.formData();
   username = String(form.get("username") ?? "");
-  const user = checkLogin(username, String(form.get("password") ?? ""), cfg.users);
+  const user = checkLogin(username, String(form.get("password") ?? ""), await hubUsers());
   if (user) {
     Astro.cookies.set(SESSION_COOKIE, makeSession(user, cfg.secret), {
       path: "/hub",

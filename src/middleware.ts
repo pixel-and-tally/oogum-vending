@@ -1,11 +1,14 @@
 import { defineMiddleware } from "astro:middleware";
 import { SESSION_COOKIE, hubConfig, readSession } from "./lib/auth";
+import { loadSettings } from "./lib/settings";
 
-// Every /hub/ page except the login page needs a signed-in owner.
-// Public pages are static and never reach this.
+// Every page runs in the Worker so the owners' saved settings (phone, hours...)
+// show up right away. Every /hub/ page except the login page needs a signed-in owner.
 export const onRequest = defineMiddleware(async (ctx, next) => {
+  if (ctx.isPrerendered) return next();
+  await loadSettings();
   const path = ctx.url.pathname;
-  if (ctx.isPrerendered || !path.startsWith("/hub")) return next();
+  if (!path.startsWith("/hub")) return next();
 
   // Hub forms only accept posts from this site.
   const origin = ctx.request.headers.get("origin");

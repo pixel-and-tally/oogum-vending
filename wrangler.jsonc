@@ -1,6 +1,6 @@
 // Cloudflare Workers config (free plan). Cloudflare builds with `npm run build`
-// and deploys with `npx wrangler deploy`. Static pages are served as assets;
-// the host form endpoint and the owner hub run the Worker.
+// and deploys with `npx wrangler deploy`. Images, CSS and the 404 page are
+// served as assets; every page runs in the Worker so the owners' Settings apply.
 // Secrets (HUB_USERS, HUB_SECRET, RESEND_API_KEY, HOST_TO_EMAIL, HOST_FROM_EMAIL) are set in the
 // Cloudflare dashboard: Workers & Pages > oogum-vending > Settings > Variables and Secrets.
 {
@@ -10,11 +10,8 @@
   "compatibility_date": "2025-09-01",
   // nodejs_compat (with a date after 2025-04-01) also fills process.env from the dashboard's variables.
   "compatibility_flags": ["nodejs_compat"],
-  "assets": {
-    "binding": "ASSETS", "directory": "./dist", "not_found_handling": "404-page",
-    // Browsers' page loads would get the 404 page without reaching the Worker, so the hub and form go to the Worker first.
-    "run_worker_first": ["/hub", "/hub/*", "/api/*"]
-  },
+  // No not_found_handling: unknown paths reach the Worker, which serves the 404 page itself.
+  "assets": { "binding": "ASSETS", "directory": "./dist" },
   // Keep variables set in the dashboard when a deploy runs.
   "keep_vars": true,
   // The hub's records. No id needed: the first deploy creates the namespace and later deploys reuse it.

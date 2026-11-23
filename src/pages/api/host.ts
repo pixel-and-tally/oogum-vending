@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { parseHost, sendHostEmail, type HostRequest } from "../../lib/host";
+import { loadSettings } from "../../lib/settings";
 import { getStore, newId } from "../../lib/store";
 import { availability } from "../../site";
 
@@ -7,10 +8,10 @@ import { availability } from "../../site";
 export const prerender = false;
 
 // Cloudflare > Workers & Pages > oogum-vending > Settings > Variables and Secrets.
-// HOST_TO_EMAIL can hold both owners, comma separated.
-const config = () => ({
+// HOST_TO_EMAIL can hold both owners, comma separated. The hub's Settings page can override it.
+const config = (hostToEmail: string) => ({
   apiKey: process.env.RESEND_API_KEY ?? "",
-  to: process.env.HOST_TO_EMAIL ?? "",
+  to: hostToEmail || process.env.HOST_TO_EMAIL || "",
   from: process.env.HOST_FROM_EMAIL || "Oogum Vending website <onboarding@resend.dev>",
 });
 
@@ -45,7 +46,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     console.error("Host form: save failed", err);
   }
 
-  const cfg = config();
+  const cfg = config((await loadSettings()).hostToEmail);
   let emailed = false;
   if (cfg.apiKey && cfg.to) {
     try {

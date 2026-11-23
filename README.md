@@ -8,6 +8,7 @@ Built by Pixel & Tally.
 - **Owner hub** (`/hub/`): login for the owners.
   - Prices: log bulk prices from Costco, Sam's Club, Walmart, Target, Amazon; it shows the cheapest store per unit.
   - Host requests: every form submission, moved through stages (New, Called, Visited, Signed, Not a fit) with notes.
+  - Settings: the owners change their phone, email, where host requests are emailed, social links, call hours, bios, machine locations and their own password. Saved to KV and shown on the site within a minute (`src/lib/settings.ts`). A saved "Send host requests to" wins over `HOST_TO_EMAIL`; a changed password wins over that owner's `HUB_USERS` entry.
   - Machines: placeholder until we know the cooler platform and what data it can export.
 
 ## Placeholders still to fill

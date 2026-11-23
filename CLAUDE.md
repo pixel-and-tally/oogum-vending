@@ -6,7 +6,7 @@ Refrigerated smart vending machines; first location Firestone in Belmont, goal i
 ## Stack
 
 - Astro 5, Tailwind 4 (tokens in `src/theme.css`), TypeScript strict, Cloudflare Workers free plan (`@astrojs/cloudflare`, `wrangler.jsonc`, headers in `public/_headers`; moved off Netlify 2026-11-21).
-- Public pages are static. `src/pages/api/host.ts` and everything under `src/pages/hub/` run in the Worker (`prerender = false`). Env vars come from `process.env` (filled by `nodejs_compat`).
+- Every page runs in the Worker (`output: "server"`, only `404` is prerendered) so the owners' hub Settings show up right away. Settings (`src/lib/settings.ts`) are saved in KV and laid over the `src/site.ts` objects by `src/middleware.ts` on each request; site.ts holds the starting values. Hub passwords changed in Settings live in KV `logins` and win over `HUB_USERS`. Env vars come from `process.env` (filled by `nodejs_compat`).
 - Hub login: `src/lib/auth.ts` (scrypt hashes in `HUB_USERS`, HMAC-signed cookie with `HUB_SECRET`), enforced in `src/middleware.ts`.
 - Hub data: `src/lib/store.ts`, Workers KV (`HUB_STORE` binding) in production, `.data/` JSON files locally.
 - Call picker: `src/lib/schedule.ts`, shared with the Pixel & Tally site.

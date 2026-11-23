@@ -1,6 +1,10 @@
 /*
  * THE CONTENT FILE. Business facts and copy for Oogum Vending.
  *
+ * The owners can change phone, email, social links, call hours, bios and
+ * locations themselves in the hub (Settings). Their saved values win over the
+ * ones here (src/lib/settings.ts); the values here are the starting point.
+ *
  * Rules: no em dashes, no invented reviews, stats or locations. Leave a field
  * empty ("") rather than guess; the pages hide anything that is empty.
  * Fields marked TODO are waiting on Stephen and Nancy.
@@ -27,6 +31,8 @@ export const site = {
   // Contact, from the owners' flier. Empty values are hidden on the site.
   email: "Connect@OogumVending.com",
   phone: "704-559-9650",
+  // Social pages, full links. Empty ones are hidden. The owners can set these in the hub (Settings).
+  social: { facebook: "" as string, instagram: "" as string, tiktok: "" as string },
   // Machine platform, e.g. "Nayax" or the cooler maker. Shown on the hub only.
   machinePlatform: "",
   // Path under public/. Their current logo; swap the file if they pick a new one. Empty shows a text sign.

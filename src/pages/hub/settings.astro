@@ -1,0 +1,216 @@
+---
+// Settings the owners change themselves: contact details, where host requests
+// go, social links, call hours, bios, machine locations and their own password.
+import Hub from "../../layouts/Hub.astro";
+import { SESSION_COOKIE, checkLogin, hubConfig, makeSession, SESSION_DAYS } from "../../lib/auth";
+import { checkNewPassword, days, hubUsers, loadSettings, parseSettings, saveSettings, setPassword, type Settings, type SettingsErrors } from "../../lib/settings";
+import { family, site } from "../../site";
+
+export const prerender = false;
+
+const user = Astro.locals.user ?? "";
+let values: Settings = await loadSettings();
+let errors: SettingsErrors = {};
+let pwError = "";
+let pwField = "";
+let typedLocations: string | undefined;
+const saved = Astro.url.searchParams.get("saved");
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("action") === "password") {
+    const current = String(form.get("current") ?? "");
+    const next = String(form.get("new") ?? "");
+    if (!checkLogin(user, current, await hubUsers())) {
+      pwError = "That isn't your current password.";
+      pwField = "current";
+    } else if ((pwError = checkNewPassword(next, String(form.get("confirm") ?? "")))) {
+      pwField = next.length < 10 ? "new" : "confirm";
+    } else {
+      await setPassword(user, next);
+      // Keep this browser signed in.
+      Astro.cookies.set(SESSION_COOKIE, makeSession(user, hubConfig().secret), {
+        path: "/hub",
+        httpOnly: true,
+        secure: import.meta.env.PROD,
+        sameSite: "lax",
+        maxAge: SESSION_DAYS * 86_400,
+      });
+      return Astro.redirect("/hub/settings/?saved=password#password", 303);
+    }
+  } else {
+    const result = parseSettings(form);
+    if (result.ok) {
+      await saveSettings(result.settings);
+      return Astro.redirect("/hub/settings/?saved=settings", 303);
+    }
+    errors = result.errors;
+    typedLocations = String(form.get("locations") ?? "");
+    // Show what they typed, not the old values.
+    values = {
+      ...values,
+      ...Object.fromEntries(["phone", "email", "hostToEmail", "facebook", "instagram", "tiktok"].map((k) => [k, String(form.get(k) ?? "")])),
+      hours: Object.fromEntries(days.map((d) => [d.n, { from: String(form.get(`from-${d.n}`) ?? ""), to: String(form.get(`to-${d.n}`) ?? "") }])),
+      bios: Object.fromEntries(family.owners.map((o) => [o.name, String(form.get(`bio-${o.name}`) ?? "")])),
+    };
+  }
+}
+
+const locationsText = typedLocations ?? values.locations.map((l) => `${l.name}, ${l.city}`).join("\n");
+const firstBad = Object.keys(errors)[0] ?? "";
+const err = (k: string) => errors[k] ?? "";
+const control = "w-full rounded-control border-2 border-line bg-frost px-4 py-3 outline-none focus:border-cabinet aria-[invalid=true]:border-danger";
+const card = "flex flex-col gap-5 rounded-card border-2 border-line bg-frost p-5 sm:p-6";
+
+const text = [
+  { id: "phone", label: "Phone", help: "Shown on every page. Leave empty to hide it.", type: "tel", autocomplete: "tel" },
+  { id: "email", label: "Email", help: "Shown on the site for customers.", type: "email", autocomplete: "email" },
+  {
+    id: "hostToEmail",
+    label: "Send host requests to",
+    help: "Who gets an email when a store sends the Host a machine form. Separate two addresses with a comma. Leave empty to use the address Blake set up.",
+    type: "text",
+    autocomplete: "email",
+  },
+] as const;
+const socials = [
+  { id: "facebook", label: "Facebook" },
+  { id: "instagram", label: "Instagram" },
+  { id: "tiktok", label: "TikTok" },
+] as const;
+---
+
+<Hub title="Settings">
+  <div>
+    <h1 class="text-3xl">Settings</h1>
+    <p class="mt-2 max-w-2xl text-muted">Change your contact details, call hours and more. The website updates within a minute of saving.</p>
+  </div>
+
+  {saved === "settings" && <p role="status" class="rounded-control border-2 border-success bg-success/10 px-4 py-3 font-semibold text-success">Saved. The website shows the new details now.</p>}
+  {
+    firstBad && (
+      <p role="alert" class="rounded-control border-2 border-danger bg-danger/5 px-4 py-3 font-semibold text-danger">
+        Nothing was saved yet. Fix the {Object.keys(errors).length === 1 ? "field" : `${Object.keys(errors).length} fields`} marked below.
+      </p>
+    )
+  }
+
+  <form method="POST" class="flex flex-col gap-6" novalidate>
+    <input type="hidden" name="action" value="settings" />
+
+    <section class={card} aria-labelledby="contact">
+      <h2 id="contact" class="text-xl">Contact</h2>
+      {
+        text.map((f) => (
+          <div class="flex flex-col gap-1.5">
+            <label for={f.id} class="text-sm font-bold">{f.label}</label>
+            <input id={f.id} name={f.id} type={f.type} autocomplete={f.autocomplete} value={values[f.id]} autofocus={firstBad === f.id} aria-invalid={err(f.id) ? "true" : undefined} aria-describedby={`${f.id}-help ${f.id}-error`} class={control} />
+            <p id={`${f.id}-help`} class="text-sm text-muted">{f.help}</p>
+            <p id={`${f.id}-error`} class="text-sm font-semibold text-danger" hidden={!err(f.id)}>{err(f.id)}</p>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class={card} aria-labelledby="social">
+      <div>
+        <h2 id="social" class="text-xl">Social pages</h2>
+        <p class="mt-1 text-sm text-muted">Paste the link or just the handle. Filled ones show at the bottom of every page.</p>
+      </div>
+      <div class="grid gap-5 sm:grid-cols-3">
+        {
+          socials.map((f) => (
+            <div class="flex flex-col gap-1.5">
+              <label for={f.id} class="text-sm font-bold">{f.label}</label>
+              <input id={f.id} name={f.id} type="text" inputmode="url" autocomplete="url" value={values[f.id]} autofocus={firstBad === f.id} aria-invalid={err(f.id) ? "true" : undefined} aria-describedby={`${f.id}-error`} class={control} />
+              <p id={`${f.id}-error`} class="text-sm font-semibold text-danger" hidden={!err(f.id)}>{err(f.id)}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class={card} aria-labelledby="hours">
+      <div>
+        <h2 id="hours" class="text-xl">Call hours</h2>
+        <p class="mt-1 text-sm text-muted">When a store can pick a call time on the Host a machine form, Eastern time. Clear both times for a day with no calls.</p>
+      </div>
+      <div class="flex flex-col gap-3">
+        {
+          days.map((d) => {
+            const h = values.hours[d.n] ?? { from: "", to: "" };
+            const bad = err(`from-${d.n}`);
+            return (
+              <div class="grid grid-cols-[6.5rem_1fr_1fr] items-center gap-3">
+                <span class="font-semibold">{d.name}</span>
+                <div class="flex flex-col gap-1">
+                  <label for={`from-${d.n}`} class="text-xs font-bold text-muted">From</label>
+                  <input id={`from-${d.n}`} name={`from-${d.n}`} type="time" step="1800" autocomplete="off" value={h.from} autofocus={firstBad === `from-${d.n}`} aria-invalid={bad ? "true" : undefined} aria-describedby={`from-${d.n}-error`} class={control} />
+                </div>
+                <div class="flex flex-col gap-1">
+                  <label for={`to-${d.n}`} class="text-xs font-bold text-muted">To</label>
+                  <input id={`to-${d.n}`} name={`to-${d.n}`} type="time" step="1800" autocomplete="off" value={h.to} aria-invalid={bad ? "true" : undefined} aria-describedby={`from-${d.n}-error`} class={control} />
+                </div>
+                <p id={`from-${d.n}-error`} class="col-span-3 text-sm font-semibold text-danger" hidden={!bad}>{bad}</p>
+              </div>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    <section class={card} aria-labelledby="about">
+      <div>
+        <h2 id="about" class="text-xl">About Us</h2>
+        <p class="mt-1 text-sm text-muted">A few lines about each of you, shown on the About Us page. An empty one stays hidden.</p>
+      </div>
+      {
+        family.owners.map((o) => (
+          <div class="flex flex-col gap-1.5">
+            <label for={`bio-${o.name}`} class="text-sm font-bold">About {o.name}</label>
+            <textarea id={`bio-${o.name}`} name={`bio-${o.name}`} rows="4" autocomplete="off" class={control}>{values.bios[o.name] ?? ""}</textarea>
+          </div>
+        ))
+      }
+      <div class="flex flex-col gap-1.5">
+        <label for="locations" class="text-sm font-bold">Machine locations</label>
+        <textarea id="locations" name="locations" rows="4" autocomplete="off" autofocus={firstBad === "locations"} aria-invalid={err("locations") ? "true" : undefined} aria-describedby="locations-help locations-error" class={control}>{locationsText}</textarea>
+        <p id="locations-help" class="text-sm text-muted">One per line, as "Name, City", like "Firestone, Belmont, NC". Shown on the site and the Machines tab.</p>
+        <p id="locations-error" class="text-sm font-semibold text-danger" hidden={!err("locations")}>{err("locations")}</p>
+      </div>
+    </section>
+
+    <div>
+      <button class="key key-vend px-8 py-3 text-lg">Save settings</button>
+    </div>
+  </form>
+
+  <form method="POST" id="password" class={`${card} max-w-xl scroll-mt-6`} novalidate aria-labelledby="password-title">
+    <input type="hidden" name="action" value="password" />
+    <input type="text" name="username" value={user} autocomplete="username" hidden />
+    <div>
+      <h2 id="password-title" class="text-xl">Your password</h2>
+      <p class="mt-1 text-sm text-muted">Changes the password for {user ? user[0].toUpperCase() + user.slice(1) : "you"} only. At least 10 characters.</p>
+    </div>
+    {saved === "password" && <p role="status" class="rounded-control border-2 border-success bg-success/10 px-4 py-3 font-semibold text-success">Password changed. Use the new one next time you sign in.</p>}
+    {pwError && <p role="alert" class="rounded-control border-2 border-danger bg-danger/5 px-4 py-3 font-semibold text-danger">Your password wasn't changed.</p>}
+    {
+      [
+        { id: "current", label: "Current password", ac: "current-password" },
+        { id: "new", label: "New password", ac: "new-password" },
+        { id: "confirm", label: "New password again", ac: "new-password" },
+      ].map((f) => (
+        <div class="flex flex-col gap-1.5">
+          <label for={f.id} class="text-sm font-bold">{f.label}</label>
+          <input id={f.id} name={f.id} type="password" autocomplete={f.ac} required autofocus={pwField === f.id} aria-invalid={pwField === f.id ? "true" : undefined} aria-describedby={`${f.id}-error`} class={control} />
+          <p id={`${f.id}-error`} class="text-sm font-semibold text-danger" hidden={pwField !== f.id}>{pwField === f.id ? pwError : ""}</p>
+        </div>
+      ))
+    }
+    <div>
+      <button class="key px-6 py-3">Change password</button>
+    </div>
+  </form>
+
+  <p class="text-sm text-muted">Anything else to change on {site.name}'s site? Ask Blake.</p>
+</Hub>
