@@ -27,7 +27,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   if (ctx.request.method === "POST" && origin && origin !== ctx.url.origin) {
     return new Response("Forbidden", { status: 403 });
   }
-  if (path.startsWith("/hub/login")) return next();
+  if (path.startsWith("/hub/login")) return withSafety(await next());
 
   const user = readSession(ctx.cookies.get(SESSION_COOKIE)?.value, hubConfig().secret);
   if (!user) return ctx.redirect(`/hub/login/?next=${encodeURIComponent(path)}`, 303);
