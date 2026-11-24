@@ -6,7 +6,7 @@ Built by Pixel & Tally.
 - **Public site**: the home page opens with the tagline and a photo of their machine (`public/machine-photo.jpg`, cropped from their flier; swap in real photos when the owners send them), then a big glass-door smart fridge whose shelves hold the main points as cards. Edit the cards in `cards` in `src/site.ts`.
 - **Bring vending to my location** (`/host/`): request form for store managers, with an optional call time. Each request is saved for the hub and emailed to the owners.
 - **Owner hub** (`/hub/`): login for the owners.
-  - Prices: log bulk prices from Costco, Sam's Club, Walmart, Target, Amazon; it shows the cheapest store per unit.
+  - Prices: log bulk prices from Costco, Sam's Club, Walmart, Target, Amazon; it shows the cheapest store per unit. Items on the watch list (up to 20) also get online prices from Google Shopping through SerpApi every Monday 6 AM Eastern (cron in `wrangler.jsonc`, handler in `src/worker.ts`) and when an owner presses Refresh. Online prices are labelled and kept beside logged ones, never over them (`src/lib/online-prices.ts`).
   - Host requests: every form submission, moved through stages (New, Called, Visited, Signed, Not a fit) with notes.
   - Settings: the owners change their phone, email, where host requests are emailed, social links, call hours, bios, machine locations and their own password. Saved to KV and shown on the site within a minute (`src/lib/settings.ts`). A saved "Send host requests to" wins over `HOST_TO_EMAIL`; a changed password wins over that owner's `HUB_USERS` entry.
   - Machines: placeholder until we know the cooler platform and what data it can export.
@@ -48,12 +48,13 @@ Variables (Worker > Settings > Variables and Secrets, type Secret):
 | `RESEND_API_KEY` | Resend key for the host request emails |
 | `HOST_TO_EMAIL` | Where host requests go. Comma separate for both owners. |
 | `HOST_FROM_EMAIL` | Optional. Sender once their domain is verified in Resend. |
+| `SERPAPI_KEY` | Optional. SerpApi key (free plan, about 100 searches a month) for the hub's online prices. Without it the watch list still works and the Refresh button is hidden. |
 
 If the email variables are missing, host requests still save to the hub.
 
 ## What the hub can and can't automate
 
-- **Store prices**: no store offers a small business a live local price feed. Walmart and Amazon have affiliate APIs that need approval; Target, Costco and Sam's have none. Version 1 is manual entry on purpose. Scraping store sites breaks often and goes against their terms.
+- **Store prices**: no store offers a small business a live local price feed. The hub reads store website prices from Google Shopping through SerpApi (a search API, free up to about 100 searches a month), one search per watched item. In-warehouse Costco and Sam's prices still need manual entry.
 - **Machine stock and sales**: depends on the cooler platform. A weekly CSV export is enough for charts; a live connection needs an operator API.
 
 ## Rules

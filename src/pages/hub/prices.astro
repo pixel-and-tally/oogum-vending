@@ -1,40 +1,87 @@
 ---
 import Hub from "../../layouts/Hub.astro";
-import { bestPrices, money, parsePrice, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
+import { bestPrices, isOnline, money, parsePrice, storeLabel, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
+import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, lookupOn, parseWatch, refreshOnlinePrices, type Run, type Watch, type WatchField } from "../../lib/online-prices";
 import { getStore, newId } from "../../lib/store";
 import { localDateString } from "../../lib/schedule";
-import { stores } from "../../site";
+import { priceLookup, stores } from "../../site";
 
 export const prerender = false;
 
 const store = await getStore();
 let invalid: PriceField[] = [];
 let draft: Record<string, string> = {};
+let watchInvalid: WatchField[] = [];
+let watchDraft: Record<string, string> = {};
+let watchFull = false;
+let refreshProblem = "";
 
 if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
-  if (form.get("action") === "delete") {
+  const action = form.get("action");
+  if (action === "delete") {
     const id = String(form.get("id") ?? "");
     const rows = await store.read<PriceEntry>("prices");
     await store.write("prices", rows.filter((r) => r.id !== id));
     return Astro.redirect("/hub/prices/", 303);
+  } else if (action === "refresh") {
+    const result = await refreshOnlinePrices({ records: store, by: Astro.locals.user ?? "owner" });
+    if (result.ok) return Astro.redirect("/hub/prices/?refreshed=1#online", 303);
+    refreshProblem = result.reason;
+  } else if (action === "watch-remove") {
+    const id = String(form.get("id") ?? "");
+    const watches = await store.read<Watch>(WATCH_KEY);
+    const gone = watches.find((w) => w.id === id);
+    const rest = watches.filter((w) => w.id !== id);
+    await store.write(WATCH_KEY, rest);
+    // Its online prices go with it, unless another watch uses the same name.
+    if (gone && !rest.some((w) => w.item === gone.item)) {
+      const online = await store.read<PriceEntry>(ONLINE_KEY);
+      await store.write(ONLINE_KEY, online.filter((e) => e.item !== gone.item));
+    }
+    return Astro.redirect("/hub/prices/#online", 303);
+  } else if (action === "watch-add") {
+    const watches = await store.read<Watch>(WATCH_KEY);
+    const result = parseWatch(form, newId());
+    watchFull = watches.length >= priceLookup.maxItems;
+    if (result.ok && !watchFull) {
+      await store.write(WATCH_KEY, [...watches, result.watch]);
+      return Astro.redirect("/hub/prices/?watching=1#online", 303);
+    }
+    if (!result.ok) watchInvalid = result.invalid;
+    watchDraft = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
+  } else {
+    const result = parsePrice(form, Astro.locals.user ?? "", newId());
+    if (result.ok) {
+      const rows = await store.read<PriceEntry>("prices");
+      rows.unshift(result.entry);
+      await store.write("prices", rows);
+      return Astro.redirect("/hub/prices/?added=1", 303);
+    }
+    invalid = result.invalid;
+    draft = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
   }
-  const result = parsePrice(form, Astro.locals.user ?? "", newId());
-  if (result.ok) {
-    const rows = await store.read<PriceEntry>("prices");
-    rows.unshift(result.entry);
-    await store.write("prices", rows);
-    return Astro.redirect("/hub/prices/?added=1", 303);
-  }
-  invalid = result.invalid;
-  draft = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
 }
 
 const entries = await store.read<PriceEntry>("prices");
-const best = bestPrices(entries);
+const online = await store.read<PriceEntry>(ONLINE_KEY);
+const watches = await store.read<Watch>(WATCH_KEY);
+const lastRun = (await store.read<Run>(RUNS_KEY))[0];
+const lookupReady = lookupOn();
+const best = bestPrices([...entries, ...online]);
 const recent = entries.slice(0, 25);
 const today = localDateString(new Date(), "America/New_York");
 const added = Astro.url.searchParams.has("added");
+const refreshed = Astro.url.searchParams.has("refreshed");
+const watching = Astro.url.searchParams.has("watching");
+const when = (iso: string) =>
+  new Date(iso).toLocaleString("en-US", { timeZone: "America/New_York", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+const watchErrors: Record<WatchField, string> = {
+  item: "What should we look up?",
+  qty: "How many are in the pack you buy? A whole number, like 35.",
+};
+const wbad = (f: WatchField) => watchInvalid.includes(f);
 
 const errors: Record<PriceField, string> = {
   item: "What did you price?",
@@ -46,14 +93,14 @@ const errors: Record<PriceField, string> = {
 };
 const bad = (f: PriceField) => invalid.includes(f);
 const control = "w-full rounded-control border-2 border-line bg-frost px-3 py-2.5 outline-none focus:border-cabinet aria-[invalid=true]:border-danger aria-[invalid=true]:bg-danger/5";
-const items = [...new Set(entries.map((e) => e.item))].sort();
+const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
 ---
 
 <Hub title="Prices">
   <div>
     <h1 class="text-3xl">Bulk prices</h1>
     <p class="mt-2 max-w-2xl text-muted">
-      Log a price when you see one: a receipt, a shelf tag, the store app. The table works out the cheapest place for each item, per can or bag, using the latest price at each store.
+      Log a price when you see one: a receipt, a shelf tag, the store app. Items on your watch list also get online prices from Walmart, Target, Sam's Club, Costco and Amazon every Monday. The table works out the cheapest place for each item, per can or bag, using the latest price at each store.
     </p>
   </div>
 
@@ -109,6 +156,105 @@ const items = [...new Set(entries.map((e) => e.item))].sort();
     </form>
   </section>
 
+  <section id="online" class="rounded-card border-2 border-line bg-frost p-5" aria-labelledby="online-heading">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div class="max-w-2xl">
+        <h2 id="online-heading" class="text-xl">Online prices</h2>
+        <p class="mt-2 text-sm text-muted">
+          Every Monday morning the hub looks up each item on this list on Google Shopping and keeps the cheapest listing at each store. These are the stores' website prices. Warehouse shelf prices at Costco and Sam's can differ, so keep logging those below; the two are shown side by side, never mixed.
+        </p>
+      </div>
+      {
+        lookupReady && (
+          <form method="POST" action="/hub/prices/#online" data-busy>
+            <input type="hidden" name="action" value="refresh" />
+            <button class="key key-vend px-5 py-2.5" disabled={watches.length === 0}>Refresh prices now</button>
+          </form>
+        )
+      }
+    </div>
+
+    {!lookupReady && (
+      <p class="mt-4 rounded-control bg-glass px-4 py-3 text-sm">
+        Online prices are not switched on yet. You can build the watch list now and prices fill in once Blake turns lookups on.
+      </p>
+    )}
+    {refreshed && <p role="status" class="mt-4 text-sm font-semibold text-success">Prices refreshed.</p>}
+    {watching && <p role="status" class="mt-4 text-sm font-semibold text-success">Added to the watch list.</p>}
+    {refreshProblem && (
+      <p role="alert" class="mt-4 rounded-control border-2 border-danger bg-danger/5 px-4 py-2 text-sm font-semibold text-danger">{refreshProblem}</p>
+    )}
+    {lastRun && (
+      <p class="mt-4 text-sm text-muted">
+        Last checked {when(lastRun.at)}{lastRun.by === "weekly" ? " (weekly)" : `, by ${lastRun.by[0].toUpperCase() + lastRun.by.slice(1)}`}: {lastRun.found} {lastRun.found === 1 ? "price" : "prices"} for {lastRun.searched} {lastRun.searched === 1 ? "item" : "items"}.
+        {lastRun.left !== undefined && ` ${lastRun.left} lookups left this month.`}
+        {lastRun.error && <span class="block text-danger">{lastRun.error}</span>}
+      </p>
+    )}
+
+    <h3 class="mt-6 text-lg">Watch list <span class="text-sm font-normal text-muted">({watches.length} of {priceLookup.maxItems})</span></h3>
+    {
+      watches.length === 0 ? (
+        <p class="mt-2 text-sm text-muted">Nothing on the list yet. Add your best sellers first.</p>
+      ) : (
+        <ul class="mt-2 divide-y divide-line rounded-control border-2 border-line">
+          {watches.map((w) => (
+            <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-sm">
+              <span>
+                <strong>{w.item}</strong>, {w.qty} per pack
+                {w.query && w.query !== w.item && <span class="text-muted"> · searches "{w.query}"</span>}
+              </span>
+              <form method="POST" action="/hub/prices/#online">
+                <input type="hidden" name="action" value="watch-remove" />
+                <input type="hidden" name="id" value={w.id} />
+                <button class="text-xs text-danger underline" aria-label={`Stop watching ${w.item}`}>Remove</button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {
+      watches.length < priceLookup.maxItems || watchFull ? (
+        <>
+          {(watchInvalid.length > 0 || watchFull) && (
+            <p role="alert" class="mt-4 rounded-control border-2 border-danger bg-danger/5 px-4 py-2 text-sm font-semibold text-danger">
+              {watchFull ? `The list holds ${priceLookup.maxItems} items. Remove one to add another.` : watchInvalid.length === 1 ? "One thing needs a fix." : `${watchInvalid.length} things need a fix.`}
+            </p>
+          )}
+          <form method="POST" action="/hub/prices/#online" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-6" novalidate data-first-error={watchInvalid[0] ? `w-${watchInvalid[0]}` : ""}>
+            <input type="hidden" name="action" value="watch-add" />
+            <div class="flex flex-col gap-1 lg:col-span-2">
+              <label for="w-item" class="text-sm font-bold">Item</label>
+              <input id="w-item" name="item" list="item-list" autocomplete="off" required value={watchDraft.item} placeholder="Coke 12 oz cans" aria-invalid={wbad("item") || undefined} aria-describedby="w-item-error" class={control} />
+              <p id="w-item-error" class="text-sm text-danger" hidden={!wbad("item")}>{watchErrors.item}</p>
+            </div>
+            <div class="flex flex-col gap-1 lg:col-span-2">
+              <label for="w-query" class="text-sm font-bold">Search for <span class="font-normal text-muted">(optional)</span></label>
+              <input id="w-query" name="query" autocomplete="off" value={watchDraft.query} placeholder="Coca-Cola 12 oz cans 35 pack" aria-describedby="w-query-hint" class={control} />
+              <p id="w-query-hint" class="text-sm text-muted">Brand, size and pack count work best.</p>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="w-qty" class="text-sm font-bold">Count in pack</label>
+              <input id="w-qty" name="qty" inputmode="numeric" autocomplete="off" required value={watchDraft.qty} placeholder="35" aria-invalid={wbad("qty") || undefined} aria-describedby="w-qty-error" class={control} />
+              <p id="w-qty-error" class="text-sm text-danger" hidden={!wbad("qty")}>{watchErrors.qty}</p>
+            </div>
+            <div class="flex flex-col gap-1">
+              <label for="w-unit" class="text-sm font-bold">Unit</label>
+              <input id="w-unit" name="unit" autocomplete="off" value={watchDraft.unit} placeholder="can" class={control} />
+            </div>
+            <div class="flex items-end sm:col-span-2 lg:col-span-6">
+              <button class="key key-vend px-5 py-2.5">Add to watch list</button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <p class="mt-4 text-sm text-muted">The list is full. Remove an item to add another.</p>
+      )
+    }
+  </section>
+
   <section aria-labelledby="best-heading">
     <h2 id="best-heading" class="text-xl">Cheapest place to buy</h2>
     {
@@ -124,7 +270,7 @@ const items = [...new Set(entries.map((e) => e.item))].sort();
                 <th class="px-4 py-3">Item</th>
                 <th class="px-4 py-3">Best store</th>
                 <th class="px-4 py-3">Per unit</th>
-                <th class="px-4 py-3">Other stores (per unit)</th>
+                <th class="px-4 py-3">Other prices (per unit)</th>
                 <th class="px-4 py-3">Saves per unit</th>
               </tr>
             </thead>
@@ -134,11 +280,15 @@ const items = [...new Set(entries.map((e) => e.item))].sort();
                   <td class="px-4 py-3 font-semibold">{b.item}</td>
                   <td class="px-4 py-3">
                     <span class="rounded bg-lime px-2 py-0.5 font-semibold">{b.best.store}</span>
+                    <span class="ml-1 rounded bg-glass px-2 py-0.5 text-xs font-semibold">{isOnline(b.best) ? "Online" : "Logged"}</span>
                     <span class="ml-1 text-muted">{money(b.best.price)} / {b.best.qty}, {b.best.date}</span>
+                    {isOnline(b.best) && b.best.link && (
+                      <a href={b.best.link} target="_blank" rel="noopener noreferrer" class="block text-xs underline" title={b.best.title}>See listing</a>
+                    )}
                   </td>
                   <td class="px-4 py-3 font-led text-xl">{money(unitPrice(b.best))} / {b.unit}</td>
                   <td class="px-4 py-3 text-muted">
-                    {b.byStore.slice(1).map((e) => `${e.store} ${money(unitPrice(e))}`).join(", ") || "Only one store so far"}
+                    {b.byStore.slice(1).map((e) => `${storeLabel(e)} ${money(unitPrice(e))}`).join(", ") || "Only one store so far"}
                   </td>
                   <td class="px-4 py-3">{b.byStore.length > 1 ? money(b.spread) : ""}</td>
                 </tr>
@@ -176,7 +326,17 @@ const items = [...new Set(entries.map((e) => e.item))].sort();
 
 <script>
   // After a failed save, put the cursor on the first field that needs a fix.
-  const form = document.querySelector<HTMLFormElement>("[data-first-error]");
-  const first = form?.dataset.firstError;
-  if (first) document.getElementById(first)?.focus();
+  for (const form of document.querySelectorAll<HTMLFormElement>("[data-first-error]")) {
+    const first = form.dataset.firstError;
+    if (first) document.getElementById(first)?.focus();
+  }
+  // A refresh takes up to half a minute: say so and stop a second tap.
+  for (const form of document.querySelectorAll<HTMLFormElement>("[data-busy]")) {
+    form.addEventListener("submit", () => {
+      const button = form.querySelector("button");
+      if (!button) return;
+      button.disabled = true;
+      button.textContent = "Looking up prices...";
+    });
+  }
 </script>

@@ -160,6 +160,23 @@ export const availability: Availability = {
 export const stores = ["Costco", "Sam's Club", "Walmart", "Target", "Amazon", "Other"] as const;
 export type Store = (typeof stores)[number];
 
+/**
+ * Automatic online prices on the hub's Prices page (src/lib/online-prices.ts).
+ * Off until the SERPAPI_KEY secret is set in Cloudflare. SerpApi's free plan
+ * covers about 100 searches a month: one search per watched item per refresh,
+ * so 20 items weekly fits with room for a few Refresh clicks.
+ */
+export const priceLookup = {
+  /** Most items the owners can watch. */
+  maxItems: 20,
+  /** Where the searches come from, so Google shows local store prices. */
+  location: "Belmont, North Carolina, United States",
+  /** Stores whose online prices count. Anything else Google lists is skipped. */
+  stores: ["Walmart", "Target", "Sam's Club", "Costco", "Amazon"] as Store[],
+  /** Least time between Refresh clicks, so a double tap doesn't spend searches. */
+  minMinutesBetween: 60,
+};
+
 /** Stages a host request moves through in the hub. */
 export const requestStages = ["New", "Called", "Visited", "Signed", "Not a fit"] as const;
 export type RequestStage = (typeof requestStages)[number];
