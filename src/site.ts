@@ -177,6 +177,15 @@ export const priceLookup = {
   minMinutesBetween: 60,
 };
 
+/** The shopping trip plan on the hub's Prices page (shoppingTrip in src/lib/prices.ts). */
+export const shoppingTrip = {
+  /**
+   * Skip a store when buying its items at stores already on the trip costs at
+   * most this much more in total (one pack of each). Above it, the stop is worth it.
+   */
+  maxExtraPerStop: 5,
+};
+
 /** Stages a host request moves through in the hub. */
 export const requestStages = ["New", "Called", "Visited", "Signed", "Not a fit"] as const;
 export type RequestStage = (typeof requestStages)[number];

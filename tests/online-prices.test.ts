@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { bestPrices, storeLabel, type PriceEntry } from "../src/lib/prices";
+import { bestPrices, shoppingTrip, storeLabel, type PriceEntry } from "../src/lib/prices";
 import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, deals, packCount, percentOff, parseWatch, pickPrices, refreshOnlinePrices, storeOf, type Run, type Watch } from "../src/lib/online-prices";
 import { memoryStore } from "../src/lib/store";
 
@@ -66,7 +66,7 @@ describe("any pack size", () => {
 });
 
 describe("sales", () => {
-  it("flags a markdown and lists the biggest saving first", () => {
+  it("shows a sale only when it is the lowest price for the item", () => {
     const got = pickPrices(
       { ...coke, qty: 0 },
       [
@@ -77,11 +77,11 @@ describe("sales", () => {
       "2026-11-24",
       id,
     );
-    const sale = deals(got);
-    expect(sale.map((e) => [e.store, percentOff(e)])).toEqual([
-      ["Walmart", 25],
-      ["Target", 10],
-    ]);
+    // Walmart's sale makes it the cheapest; Target's markdown still loses, so it isn't shown.
+    const rows = bestPrices([...got, { ...got[0], id: "t2", store: "Costco", price: 16, wasPrice: undefined, source: undefined }]);
+    const sale = deals(rows);
+    expect(sale.map((e) => [e.store, percentOff(e)])).toEqual([["Walmart", 25]]);
+
   });
 });
 
@@ -186,5 +186,42 @@ describe("refreshOnlinePrices", () => {
     expect(await records.read<PriceEntry>(ONLINE_KEY)).toEqual([old]);
     const [run] = await records.read<Run>(RUNS_KEY);
     expect(run.error).toContain("1 of 1 lookups failed");
+  });
+});
+
+describe("shoppingTrip", () => {
+  const e = (item: string, store: PriceEntry["store"], price: number, qty = 10): PriceEntry => ({
+    id: item + store, item, store, price, qty, unit: "can", date: "2026-11-24", note: "", by: "nancy",
+  });
+
+  it("sends each item to its cheapest store, and skips a stop that saves little in total", () => {
+    const rows = bestPrices([
+      e("Coke", "Costco", 5), e("Coke", "Walmart", 8),
+      e("Sprite", "Costco", 5), e("Sprite", "Walmart", 8),
+      e("Doritos", "Target", 9), e("Doritos", "Costco", 10), // $1 more at Costco: moves
+      e("Water", "Walmart", 3), e("Water", "Costco", 9), // $6 more: Walmart stays
+    ]);
+    const { stops: trip, skipped } = shoppingTrip(rows, 5);
+    expect(skipped).toEqual([{ store: "Target", items: ["Doritos"], extra: 1 }]);
+    expect(trip.map((s) => [s.store, s.items.map((t) => t.item)])).toEqual([
+      ["Costco", ["Coke", "Doritos", "Sprite"]],
+      ["Walmart", ["Water"]],
+    ]);
+    const doritos = trip[0].items.find((t) => t.item === "Doritos")!;
+    expect(doritos.extra).toBeCloseTo(1);
+    expect(doritos.cheapestAt).toBe("Target");
+  });
+
+  it("keeps a stop when skipping it would cost too much in total", () => {
+    const rows = bestPrices([
+      e("Coke", "Costco", 5), e("Coke", "Walmart", 11), // $6 more
+      e("Water", "Walmart", 3), e("Water", "Costco", 6), // $3 more
+      e("Tea", "Walmart", 3), e("Tea", "Costco", 6), // $3 more: $6 together, over $5
+    ]);
+    expect(shoppingTrip(rows, 5).stops.map((s) => s.store).sort()).toEqual(["Costco", "Walmart"]);
+  });
+
+  it("is empty with no prices", () => {
+    expect(shoppingTrip([], 5)).toEqual({ stops: [], skipped: [] });
   });
 });

@@ -9,7 +9,7 @@
 // Online prices are the store websites' prices, not the shelf price in a
 // warehouse, so they are labelled "Online" and never replace a logged price.
 import { priceLookup, type Store } from "../site";
-import type { PriceEntry } from "./prices";
+import type { BestPrice, PriceEntry } from "./prices";
 import type { Store as Records } from "./store";
 import { localDateString } from "./schedule";
 
@@ -159,9 +159,15 @@ async function search(watch: Watch, key: string, get: Fetch): Promise<Listing[]>
   return [...(body.shopping_results ?? []), ...(body.inline_shopping_results ?? [])];
 }
 
-/** Online prices marked down from a higher "was" price, biggest saving first. */
-export function deals(online: PriceEntry[]): PriceEntry[] {
-  return online.filter((e) => e.wasPrice && e.wasPrice > e.price).sort((a, b) => percentOff(b) - percentOff(a));
+/**
+ * Sales worth knowing about: markdowns that make that listing the cheapest
+ * price for its item (pass bestPrices' rows). Biggest saving first.
+ */
+export function deals(rows: BestPrice[]): PriceEntry[] {
+  return rows
+    .map((r) => r.best)
+    .filter((e) => e.wasPrice && e.wasPrice > e.price)
+    .sort((a, b) => percentOff(b) - percentOff(a));
 }
 
 export const percentOff = (e: Pick<PriceEntry, "price" | "wasPrice">) => (e.wasPrice ? Math.round((1 - e.price / e.wasPrice) * 100) : 0);
