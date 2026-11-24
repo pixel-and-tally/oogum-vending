@@ -102,3 +102,65 @@ export function parsePrice(
 
 export const money = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: n < 1 ? 3 : 2 });
+
+export type TripItem = {
+  item: string;
+  /** What to buy: the entry picked for this stop. */
+  pick: PriceEntry;
+  /** Extra per pack over the item's cheapest price, when moved here to save a stop. */
+  extra: number;
+  /** Where it would have been cheapest, when moved. */
+  cheapestAt?: string;
+};
+export type TripStop = { store: Store; items: TripItem[] };
+/** A store left off the trip, what was cheaper there and what skipping it costs per pack in total. */
+export type SkippedStop = { store: Store; items: string[]; extra: number };
+
+const packExtra = (alt: PriceEntry, best: PriceEntry) => (unitPrice(alt) - unitPrice(best)) * best.qty;
+
+/**
+ * Where to buy everything with the fewest stops. Each item starts at its
+ * cheapest store; then a stop is skipped when buying its items at stores
+ * already on the trip costs at most maxExtraPerStop more in total (one pack of
+ * each). The smallest stops are tried first. Logged and online prices at the
+ * same store are one stop.
+ */
+export function shoppingTrip(rows: BestPrice[], maxExtraPerStop: number): { stops: TripStop[]; skipped: SkippedStop[] } {
+  const stops = new Map<Store, TripItem[]>();
+  const skipped: SkippedStop[] = [];
+  const add = (store: Store, t: TripItem) => stops.set(store, [...(stops.get(store) ?? []), t]);
+  for (const r of rows) add(r.best.store, { item: r.item, pick: r.best, extra: 0 });
+  const rowOf = new Map(rows.map((r) => [r.item, r]));
+
+  let changed = true;
+  while (changed && stops.size > 1) {
+    changed = false;
+    const bySize = [...stops.entries()].sort((a, b) => a[1].length - b[1].length);
+    for (const [store, items] of bySize) {
+      const moves = items.map((t) => {
+        const r = rowOf.get(t.item)!;
+        const alt = r.byStore
+          .filter((e) => e.store !== store && stops.has(e.store))
+          .sort((a, b) => unitPrice(a) - unitPrice(b))[0];
+        return alt ? { t, alt, extra: packExtra(alt, r.best) } : undefined;
+      });
+      if (!moves.every(Boolean)) continue;
+      const cost = moves.reduce((sum, m) => sum + m!.extra - m!.t.extra, 0);
+      if (cost > maxExtraPerStop) continue;
+      stops.delete(store);
+      const own = items.filter((t) => t.extra === 0).map((t) => t.item);
+      if (own.length) skipped.push({ store, items: own, extra: Math.round(cost * 100) / 100 });
+      for (const m of moves) {
+        add(m!.alt.store, { item: m!.t.item, pick: m!.alt, extra: m!.extra, cheapestAt: storeLabel(rowOf.get(m!.t.item)!.best) });
+      }
+      changed = true;
+      break;
+    }
+  }
+  return {
+    stops: [...stops.entries()]
+      .map(([store, items]) => ({ store, items: items.sort((a, b) => a.item.localeCompare(b.item)) }))
+      .sort((a, b) => b.items.length - a.items.length || a.store.localeCompare(b.store)),
+    skipped,
+  };
+}

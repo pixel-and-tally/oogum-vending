@@ -1,10 +1,10 @@
 ---
 import Hub from "../../layouts/Hub.astro";
-import { bestPrices, isOnline, money, parsePrice, storeLabel, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
+import { bestPrices, isOnline, money, parsePrice, shoppingTrip, storeLabel, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
 import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, deals, lookupOn, parseWatch, percentOff, refreshOnlinePrices, type Run, type Watch, type WatchField } from "../../lib/online-prices";
 import { getStore, newId } from "../../lib/store";
 import { localDateString } from "../../lib/schedule";
-import { priceLookup, stores } from "../../site";
+import { priceLookup, shoppingTrip as tripRules, stores } from "../../site";
 
 export const prerender = false;
 
@@ -69,7 +69,8 @@ const watches = await store.read<Watch>(WATCH_KEY);
 const lastRun = (await store.read<Run>(RUNS_KEY))[0];
 const lookupReady = lookupOn();
 const best = bestPrices([...entries, ...online]);
-const onSale = deals(online);
+const onSale = deals(best);
+const { stops: trip, skipped } = shoppingTrip(best, tripRules.maxExtraPerStop);
 const recent = entries.slice(0, 25);
 const today = localDateString(new Date(), "America/New_York");
 const added = Astro.url.searchParams.has("added");
@@ -258,10 +259,57 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
   </section>
 
   {
+    trip.length > 0 && (
+      <section aria-labelledby="trip-heading">
+        <h2 id="trip-heading" class="text-xl">This week's shopping trip</h2>
+        <p class="mt-1 max-w-3xl text-sm text-muted">
+          The fewest stops for the best prices. When a store only beats the others by {money(tripRules.maxExtraPerStop)} or less in total, it's left off and those items move to a store you're already going to. Sale items are listed first: they won't last. Online prices refresh Monday morning, so this list is freshest on Monday.
+        </p>
+        {skipped.length > 0 && (
+          <ul class="mt-3 space-y-1 text-sm">
+            {skipped.map((s) => (
+              <li>
+                <strong>Skip {s.store}.</strong> It's cheaper for {s.items.join(", ")}, but only by {money(s.extra)} in total, not worth the trip.
+              </li>
+            ))}
+          </ul>
+        )}
+        <ol class="mt-3 grid gap-4 md:grid-cols-2">
+          {trip.map((stop, i) => (
+            <li class="rounded-card border-2 border-line bg-frost p-4">
+              <h3 class="text-lg">
+                Stop {i + 1}: {stop.store} <span class="text-sm font-normal text-muted">({stop.items.length} {stop.items.length === 1 ? "item" : "items"})</span>
+              </h3>
+              <ul class="mt-2 divide-y divide-line text-sm">
+                {[...stop.items].sort((a, b) => Number(!!b.pick.wasPrice) - Number(!!a.pick.wasPrice)).map((t) => (
+                  <li class="py-2">
+                    <strong>{t.item}</strong>: {t.pick.qty} pack for {money(t.pick.price)} ({money(unitPrice(t.pick))} / {t.pick.unit})
+                    {t.pick.wasPrice && <span class="ml-1 rounded bg-lime px-2 py-0.5 text-xs font-semibold">Sale, was {money(t.pick.wasPrice)}</span>}
+                    <span class="block text-xs text-muted">
+                      {isOnline(t.pick) ? "Website price: order online or check the shelf." : `Price you logged ${t.pick.date}.`}
+                      {t.extra > 0 && ` ${money(t.extra)} more than at ${t.cheapestAt}.`}
+                      {isOnline(t.pick) && t.pick.link && (
+                        <>
+                          {" "}
+                          <a href={t.pick.link} target="_blank" rel="noopener noreferrer" class="underline" title={t.pick.title}>See listing</a>
+                        </>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  {
     onSale.length > 0 && (
       <section aria-labelledby="deals-heading">
-        <h2 id="deals-heading" class="text-xl">On sale online</h2>
-        <p class="mt-1 text-sm text-muted">Marked down from a higher price at the last check. Sales end, so open the listing before you buy.</p>
+        <h2 id="deals-heading" class="text-xl">Sales worth grabbing</h2>
+        <p class="mt-1 text-sm text-muted">Marked down far enough to be the lowest price anywhere for that item. Sales end, so buy these first.</p>
         <ul class="mt-3 divide-y divide-line rounded-card border-2 border-line bg-frost">
           {onSale.map((e) => (
             <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
@@ -311,7 +359,7 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
                   </td>
                   <td class="px-4 py-3 font-led text-xl">{money(unitPrice(b.best))} / {b.unit}</td>
                   <td class="px-4 py-3 text-muted">
-                    {b.byStore.slice(1).map((e) => `${storeLabel(e)} ${money(unitPrice(e))}${e.wasPrice ? " (sale)" : ""}`).join(", ") || "Only one store so far"}
+                    {b.byStore.slice(1).map((e) => `${storeLabel(e)} ${money(unitPrice(e))}`).join(", ") || "Only one store so far"}
                   </td>
                   <td class="px-4 py-3">{b.byStore.length > 1 ? money(b.spread) : ""}</td>
                 </tr>
