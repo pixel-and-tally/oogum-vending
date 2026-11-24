@@ -1,7 +1,7 @@
 // Cloudflare Workers config (free plan). Cloudflare builds with `npm run build`
 // and deploys with `npx wrangler deploy`. Images, CSS and the 404 page are
 // served as assets; every page runs in the Worker so the owners' Settings apply.
-// Secrets (HUB_USERS, HUB_SECRET, RESEND_API_KEY, HOST_TO_EMAIL, HOST_FROM_EMAIL) are set in the
+// Secrets (HUB_USERS, HUB_SECRET, RESEND_API_KEY, HOST_TO_EMAIL, HOST_FROM_EMAIL, SERPAPI_KEY) are set in the
 // Cloudflare dashboard: Workers & Pages > oogum-vending > Settings > Variables and Secrets.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
@@ -16,5 +16,7 @@
   "keep_vars": true,
   // The hub's records. No id needed: the first deploy creates the namespace and later deploys reuse it.
   "kv_namespaces": [{ "binding": "HUB_STORE" }],
+  // Mondays 6 AM Eastern (11:00 UTC; 7 AM in summer): refresh the hub's online prices. Free.
+  "triggers": { "crons": ["0 11 * * 1"] },
   "observability": { "enabled": true }
 }
