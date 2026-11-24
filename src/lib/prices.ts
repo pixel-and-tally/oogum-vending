@@ -24,6 +24,8 @@ export type PriceEntry = {
   /** Online only: the product title Google matched and where to buy it. */
   title?: string;
   link?: string;
+  /** Online only: the price before a markdown, when Google shows one. */
+  wasPrice?: number;
 };
 
 export const isOnline = (e: Pick<PriceEntry, "source">) => e.source === "online";

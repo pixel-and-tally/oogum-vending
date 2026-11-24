@@ -1,7 +1,7 @@
 ---
 import Hub from "../../layouts/Hub.astro";
 import { bestPrices, isOnline, money, parsePrice, storeLabel, unitPrice, type PriceEntry, type PriceField } from "../../lib/prices";
-import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, lookupOn, parseWatch, refreshOnlinePrices, type Run, type Watch, type WatchField } from "../../lib/online-prices";
+import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, deals, lookupOn, parseWatch, percentOff, refreshOnlinePrices, type Run, type Watch, type WatchField } from "../../lib/online-prices";
 import { getStore, newId } from "../../lib/store";
 import { localDateString } from "../../lib/schedule";
 import { priceLookup, stores } from "../../site";
@@ -69,6 +69,7 @@ const watches = await store.read<Watch>(WATCH_KEY);
 const lastRun = (await store.read<Run>(RUNS_KEY))[0];
 const lookupReady = lookupOn();
 const best = bestPrices([...entries, ...online]);
+const onSale = deals(online);
 const recent = entries.slice(0, 25);
 const today = localDateString(new Date(), "America/New_York");
 const added = Astro.url.searchParams.has("added");
@@ -79,7 +80,7 @@ const when = (iso: string) =>
 
 const watchErrors: Record<WatchField, string> = {
   item: "What should we look up?",
-  qty: "How many are in the pack you buy? A whole number, like 35.",
+  qty: "Leave it empty for any pack size, or enter a whole number, like 35.",
 };
 const wbad = (f: WatchField) => watchInvalid.includes(f);
 
@@ -161,7 +162,7 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
       <div class="max-w-2xl">
         <h2 id="online-heading" class="text-xl">Online prices</h2>
         <p class="mt-2 text-sm text-muted">
-          Every Monday morning the hub looks up each item on this list on Google Shopping and keeps the cheapest listing at each store. These are the stores' website prices. Warehouse shelf prices at Costco and Sam's can differ, so keep logging those below; the two are shown side by side, never mixed.
+          Every Monday morning the hub looks up each item on this list on Google Shopping, in any pack size, reads the count from each listing and keeps the cheapest per can or bag at each store. Sale prices are flagged. These are the stores' website prices. Warehouse shelf prices at Costco and Sam's can differ, so keep logging those below; the two are shown side by side, never mixed.
         </p>
       </div>
       {
@@ -201,7 +202,7 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
           {watches.map((w) => (
             <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 text-sm">
               <span>
-                <strong>{w.item}</strong>, {w.qty} per pack
+                <strong>{w.item}</strong>, {w.qty > 0 ? `${w.qty} per pack` : "any pack size"}
                 {w.query && w.query !== w.item && <span class="text-muted"> · searches "{w.query}"</span>}
               </span>
               <form method="POST" action="/hub/prices/#online">
@@ -232,12 +233,13 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
             </div>
             <div class="flex flex-col gap-1 lg:col-span-2">
               <label for="w-query" class="text-sm font-bold">Search for <span class="font-normal text-muted">(optional)</span></label>
-              <input id="w-query" name="query" autocomplete="off" value={watchDraft.query} placeholder="Coca-Cola 12 oz cans 35 pack" aria-describedby="w-query-hint" class={control} />
-              <p id="w-query-hint" class="text-sm text-muted">Brand, size and pack count work best.</p>
+              <input id="w-query" name="query" autocomplete="off" value={watchDraft.query} placeholder="Coca-Cola 12 oz cans" aria-describedby="w-query-hint" class={control} />
+              <p id="w-query-hint" class="text-sm text-muted">Brand and size work best, like 12 oz or 1 oz.</p>
             </div>
             <div class="flex flex-col gap-1">
-              <label for="w-qty" class="text-sm font-bold">Count in pack</label>
-              <input id="w-qty" name="qty" inputmode="numeric" autocomplete="off" required value={watchDraft.qty} placeholder="35" aria-invalid={wbad("qty") || undefined} aria-describedby="w-qty-error" class={control} />
+              <label for="w-qty" class="text-sm font-bold">Count in pack <span class="font-normal text-muted">(optional)</span></label>
+              <input id="w-qty" name="qty" inputmode="numeric" autocomplete="off" value={watchDraft.qty} placeholder="Any" aria-invalid={wbad("qty") || undefined} aria-describedby="w-qty-hint w-qty-error" class={control} />
+              <p id="w-qty-hint" class="text-sm text-muted">Empty = any size.</p>
               <p id="w-qty-error" class="text-sm text-danger" hidden={!wbad("qty")}>{watchErrors.qty}</p>
             </div>
             <div class="flex flex-col gap-1">
@@ -254,6 +256,26 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
       )
     }
   </section>
+
+  {
+    onSale.length > 0 && (
+      <section aria-labelledby="deals-heading">
+        <h2 id="deals-heading" class="text-xl">On sale online</h2>
+        <p class="mt-1 text-sm text-muted">Marked down from a higher price at the last check. Sales end, so open the listing before you buy.</p>
+        <ul class="mt-3 divide-y divide-line rounded-card border-2 border-line bg-frost">
+          {onSale.map((e) => (
+            <li class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+              <span>
+                <span class="mr-1 rounded bg-lime px-2 py-0.5 font-semibold">{percentOff(e)}% off</span>
+                <strong>{e.item}</strong> at {e.store}: {money(e.price)} <span class="text-muted line-through">{money(e.wasPrice!)}</span> for {e.qty}, {money(unitPrice(e))} / {e.unit}
+              </span>
+              {e.link && <a href={e.link} target="_blank" rel="noopener noreferrer" class="text-xs underline" title={e.title}>See listing</a>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
   <section aria-labelledby="best-heading">
     <h2 id="best-heading" class="text-xl">Cheapest place to buy</h2>
@@ -281,6 +303,7 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
                   <td class="px-4 py-3">
                     <span class="rounded bg-lime px-2 py-0.5 font-semibold">{b.best.store}</span>
                     <span class="ml-1 rounded bg-glass px-2 py-0.5 text-xs font-semibold">{isOnline(b.best) ? "Online" : "Logged"}</span>
+                    {b.best.wasPrice && <span class="ml-1 rounded bg-lime px-2 py-0.5 text-xs font-semibold">Sale, was {money(b.best.wasPrice)}</span>}
                     <span class="ml-1 text-muted">{money(b.best.price)} / {b.best.qty}, {b.best.date}</span>
                     {isOnline(b.best) && b.best.link && (
                       <a href={b.best.link} target="_blank" rel="noopener noreferrer" class="block text-xs underline" title={b.best.title}>See listing</a>
@@ -288,7 +311,7 @@ const items = [...new Set([...entries, ...watches].map((e) => e.item))].sort();
                   </td>
                   <td class="px-4 py-3 font-led text-xl">{money(unitPrice(b.best))} / {b.unit}</td>
                   <td class="px-4 py-3 text-muted">
-                    {b.byStore.slice(1).map((e) => `${storeLabel(e)} ${money(unitPrice(e))}`).join(", ") || "Only one store so far"}
+                    {b.byStore.slice(1).map((e) => `${storeLabel(e)} ${money(unitPrice(e))}${e.wasPrice ? " (sale)" : ""}`).join(", ") || "Only one store so far"}
                   </td>
                   <td class="px-4 py-3">{b.byStore.length > 1 ? money(b.spread) : ""}</td>
                 </tr>

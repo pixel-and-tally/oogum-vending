@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { bestPrices, storeLabel, type PriceEntry } from "../src/lib/prices";
-import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, packCount, parseWatch, pickPrices, refreshOnlinePrices, storeOf, type Run, type Watch } from "../src/lib/online-prices";
+import { ONLINE_KEY, RUNS_KEY, WATCH_KEY, deals, packCount, percentOff, parseWatch, pickPrices, refreshOnlinePrices, storeOf, type Run, type Watch } from "../src/lib/online-prices";
 import { memoryStore } from "../src/lib/store";
 
 const coke: Watch = { id: "w1", item: "Coke 12 oz cans", query: "Coca-Cola 12 oz 35 pack", qty: 35, unit: "can" };
@@ -20,7 +20,9 @@ describe("reading Google Shopping listings", () => {
     expect(packCount("Coca-Cola Soda, 12 fl oz, 35 Pack")).toBe(35);
     expect(packCount("Doritos Nacho Cheese 1 oz, 40-ct")).toBe(40);
     expect(packCount("Pack of 24 bottles")).toBe(24);
+    expect(packCount("Coca-Cola 24 x 12 fl oz")).toBe(24);
     expect(packCount("Coke 2 liter")).toBeUndefined();
+    expect(packCount("Lay's Classic 1 oz bag")).toBeUndefined();
   });
 
   it("keeps the cheapest per unit at each of our stores, labelled online", () => {
@@ -46,6 +48,43 @@ describe("reading Google Shopping listings", () => {
   });
 });
 
+describe("any pack size", () => {
+  const any: Watch = { ...coke, qty: 0 };
+  it("compares different pack sizes per unit and skips listings with no count", () => {
+    const got = pickPrices(
+      any,
+      [
+        { title: "Coca-Cola 12 oz 12 Pack", source: "Target", extracted_price: 7.49 }, // 0.624
+        { title: "Coca-Cola 12 oz 24 Pack", source: "Target", extracted_price: 13.99 }, // 0.583, wins
+        { title: "Coca-Cola 12 oz cans", source: "Walmart", extracted_price: 5 }, // no count: skipped
+      ],
+      "2026-11-24",
+      id,
+    );
+    expect(got.map((e) => [e.store, e.qty])).toEqual([["Target", 24]]);
+  });
+});
+
+describe("sales", () => {
+  it("flags a markdown and lists the biggest saving first", () => {
+    const got = pickPrices(
+      { ...coke, qty: 0 },
+      [
+        { title: "Coke 35 Pack", source: "Walmart", extracted_price: 15, extracted_old_price: 20 },
+        { title: "Coke 35 Pack", source: "Target", extracted_price: 18, extracted_old_price: 20 },
+        { title: "Coke 35 Pack", source: "Amazon", extracted_price: 18, extracted_old_price: 17 }, // not a markdown
+      ],
+      "2026-11-24",
+      id,
+    );
+    const sale = deals(got);
+    expect(sale.map((e) => [e.store, percentOff(e)])).toEqual([
+      ["Walmart", 25],
+      ["Target", 10],
+    ]);
+  });
+});
+
 describe("online and logged prices side by side", () => {
   const base = { id: "x", item: "Coke 12 oz cans", unit: "can", date: "2026-11-24", note: "", by: "nancy" };
   it("never lets the website price replace a logged warehouse price", () => {
@@ -64,7 +103,12 @@ describe("watch list", () => {
     Object.entries(o).forEach(([k, v]) => f.set(k, v));
     return f;
   };
-  it("needs an item and a whole pack count", () => {
+  it("takes any pack size when the count is left empty", () => {
+    const any = parseWatch(form({ item: "Doritos", qty: "", unit: "bag" }), "w");
+    expect(any.ok && any.watch.qty).toBe(0);
+  });
+
+  it("needs an item, and a whole number if a count is given", () => {
     const ok = parseWatch(form({ item: "Doritos", qty: "40", unit: "bag", query: "" }), "w");
     expect(ok.ok && ok.watch.qty).toBe(40);
     const bad = parseWatch(form({ item: " ", qty: "2.5" }), "w");
