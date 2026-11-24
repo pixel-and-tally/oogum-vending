@@ -23,7 +23,11 @@ export type Watch = {
   item: string;
   /** What to search for. Empty = the item name. */
   query: string;
-  /** Count in the pack they buy, used when a listing doesn't say. */
+  /**
+   * Optional. 0 = any pack size: each listing's count is read from its title
+   * and prices are compared per unit. A number is used only when a listing
+   * doesn't say its count.
+   */
   qty: number;
   unit: string;
 };
@@ -46,11 +50,11 @@ export const lookupOn = () => lookupKey() !== "";
 
 export function parseWatch(form: FormData, id: string): { ok: true; watch: Watch } | { ok: false; invalid: WatchField[] } {
   const t = (k: string) => String(form.get(k) ?? "").trim().slice(0, 120);
-  const qty = t("qty") === "" ? NaN : Number(t("qty"));
+  const qty = t("qty") === "" ? 0 : Number(t("qty"));
   const watch: Watch = { id, item: t("item"), query: t("query"), qty, unit: t("unit") || "unit" };
   const invalid: WatchField[] = [];
   if (!watch.item) invalid.push("item");
-  if (!(qty > 0) || !Number.isInteger(qty)) invalid.push("qty");
+  if (!(qty >= 0) || !Number.isInteger(qty)) invalid.push("qty");
   return invalid.length ? { ok: false, invalid } : { ok: true, watch };
 }
 
@@ -65,11 +69,12 @@ export function storeOf(source: string | undefined): Store | undefined {
   return undefined;
 }
 
-/** The count in a listing title: "35 Pack", "24-pk", "Pack of 12", "30 ct", "18 Count". */
+/** The count in a listing title: "35 Pack", "24-pk", "Pack of 12", "30 ct", "18 Count", "24 x 12 oz". */
 export function packCount(title: string): number | undefined {
   const m =
-    title.match(/\b(\d{1,3})\s*-?\s*(?:pack|pk|ct|count|cans|bottles|bags|pouches|bars)\b/i) ??
-    title.match(/\b(?:pack|case|box) of (\d{1,3})\b/i);
+    title.match(/\b(\d{1,3})\s*-?\s*(?:pack|pk|ct|count|cans|bottles|bags|pouches|bars|pieces|pcs)\b/i) ??
+    title.match(/\b(?:pack|case|box) of (\d{1,3})\b/i) ??
+    title.match(/\b(\d{1,3})\s*x\s*\d/i);
   const n = m ? Number(m[1]) : NaN;
   return n > 1 ? n : undefined;
 }
@@ -78,12 +83,17 @@ type Listing = {
   title?: string;
   source?: string;
   extracted_price?: number;
+  extracted_old_price?: number;
   link?: string;
   product_link?: string;
   second_hand_condition?: string;
 };
 
-/** Cheapest per unit at each store we compare, as price entries. */
+/**
+ * Cheapest per unit at each store we compare, as price entries. Any pack size
+ * counts; a listing whose count can't be read (and no fallback count) is skipped,
+ * since its unit price would be a guess.
+ */
 export function pickPrices(watch: Watch, listings: Listing[], date: string, id: () => string): PriceEntry[] {
   const best = new Map<Store, PriceEntry>();
   for (const l of listings) {
@@ -91,7 +101,9 @@ export function pickPrices(watch: Watch, listings: Listing[], date: string, id: 
     const price = l.extracted_price;
     if (!store || !priceLookup.stores.includes(store) || !(typeof price === "number" && price > 0) || l.second_hand_condition) continue;
     const title = String(l.title ?? "").slice(0, 200);
-    const qty = packCount(title) ?? watch.qty;
+    const qty = packCount(title) ?? (watch.qty > 0 ? watch.qty : undefined);
+    if (!qty) continue;
+    const was = l.extracted_old_price;
     const entry: PriceEntry = {
       id: id(),
       item: watch.item,
@@ -105,6 +117,7 @@ export function pickPrices(watch: Watch, listings: Listing[], date: string, id: 
       source: "online",
       title,
       link: safeLink(l.product_link ?? l.link),
+      wasPrice: typeof was === "number" && was > price ? was : undefined,
     };
     const prev = best.get(store);
     if (!prev || price / qty < prev.price / prev.qty) best.set(store, entry);
@@ -145,6 +158,13 @@ async function search(watch: Watch, key: string, get: Fetch): Promise<Listing[]>
   if (body.error && !/hasn't returned any results/i.test(body.error)) throw new Error(body.error);
   return [...(body.shopping_results ?? []), ...(body.inline_shopping_results ?? [])];
 }
+
+/** Online prices marked down from a higher "was" price, biggest saving first. */
+export function deals(online: PriceEntry[]): PriceEntry[] {
+  return online.filter((e) => e.wasPrice && e.wasPrice > e.price).sort((a, b) => percentOff(b) - percentOff(a));
+}
+
+export const percentOff = (e: Pick<PriceEntry, "price" | "wasPrice">) => (e.wasPrice ? Math.round((1 - e.price / e.wasPrice) * 100) : 0);
 
 export type RefreshResult = { ok: true; run: Run } | { ok: false; reason: string; run?: Run };
 
